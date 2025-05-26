@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>EDA Interactive Plot</title>
+  <link rel="stylesheet" href="global.css">
+  <script type="module" src="main.js"></script>
+</head>
+
+<body>
+  <div id="container">
+    <div class="tooltip" style="opacity:0;"></div>
+    <div id="main">
+      <h2>Interactive Plot</h2>
+      <label for="dataset-select">Select Dataset: </label>
+      <select id="dataset-select">
+        <option value="eda_midterm1.csv">Midterm 1</option>
+        <option value="eda_midterm2.csv">Midterm 2</option>
+        <option value="eda_final.csv">Final</option>
+      </select>
+      <svg width="800" height="500" class="eda"></svg>
+      <svg width="800" height="500" class="hr"></svg>
+    </div>
+  </div>
+</body>
+
+</html>
