@@ -1,0 +1,24 @@
+#container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    margin-top: 20px;
+  }
+  
+  .tooltip {
+      width: 180px;
+      margin-right: 20px;
+      position: absolute; 
+      background-color: white;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      pointer-events: none;
+      font-size: 12px;
+      align-items: left;
+  }
+  
+  svg {
+      display: block;
+      font: 12px sans-serif;
+  }

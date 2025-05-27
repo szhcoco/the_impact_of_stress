@@ -1,0 +1,171 @@
+import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
+
+const svg = d3.select("svg");
+const tooltip = d3.select(".tooltip");
+const margin = { top: 20, right: 60, bottom: 50, left: 60 };
+const width = +svg.attr("width") - margin.left - margin.right;
+const height = +svg.attr("height") - margin.top - margin.bottom;
+const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+let xScale = d3.scaleLinear().range([0, width]);
+let yScaleEDA = d3.scaleLinear().range([height, 0]);
+let yScaleHR = d3.scaleLinear().range([height, 0]);
+
+const xAxisGroup = g.append("g").attr("transform", `translate(0,${height})`);
+const yAxisEDAGroup = g.append("g");
+const yAxisHRGroup = g.append("g").attr("transform", `translate(${width},0)`);
+
+const lineEDA = d3.line().x(d => xScale(d.time_seconds)).y(d => yScaleEDA(d.EDA));
+const lineHR = d3.line().x(d => xScale(d.time_seconds)).y(d => yScaleHR(d.HR));
+
+function setupTooltip(selection, field) {
+  selection
+    .on("mouseover", (event, d) => {
+      tooltip.transition().duration(200).style("opacity", .9);
+      tooltip.html(`${field}: ${d[field]}<br/>Time: ${d.time_seconds}s<br/>Timestamp: ${d.timestamp}<br/>Period: ${d.period}`)
+             .style("left", (event.pageX + 10) + "px")
+             .style("top", (event.pageY - 28) + "px");
+    })
+    .on("mouseout", () => {
+      tooltip.transition().duration(500).style("opacity", 0);
+    });
+}
+
+function draw(datasetBase) {
+  const edaPath = datasetBase;
+  const hrPath = datasetBase.replace("EDA", "HR");
+
+  Promise.all([
+    d3.csv(edaPath),
+    d3.csv(hrPath)
+  ]).then(([edaData, hrData]) => {
+    // Create a lookup for HR by timestamp
+    const hrMap = new Map();
+    hrData.forEach(d => hrMap.set(d.timestamp, +d.HR));
+
+    // Merge HR into EDA where timestamps match
+    edaData = edaData
+      .filter(d => hrMap.has(d.timestamp))
+      .map(d => ({
+        ...d,
+        EDA: +d.EDA,
+        time_seconds: +d.time_seconds,
+        HR: hrMap.get(d.timestamp)
+      }));
+
+    // Define scales
+    xScale.domain(d3.extent(edaData, d => d.time_seconds));
+    yScaleEDA.domain([0, d3.max(edaData, d => d.EDA)]).nice();
+    yScaleHR.domain([0, d3.max(edaData, d => d.HR)]).nice();
+
+    // Draw axes
+    xAxisGroup.call(d3.axisBottom(xScale));
+    yAxisEDAGroup.call(d3.axisLeft(yScaleEDA));
+    yAxisHRGroup.call(d3.axisRight(yScaleHR));
+
+    // Clear old elements
+    g.selectAll(".line-path, .dot, .hr-dot, .vline, .label").remove();
+
+    // EDA line
+    g.append("path")
+      .datum(edaData)
+      .attr("class", "line-path")
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 1.5)
+      .attr("d", lineEDA);
+
+    // HR line
+    g.append("path")
+      .datum(edaData)
+      .attr("class", "line-path")
+      .attr("fill", "none")
+      .attr("stroke", "darkorange")
+      .attr("stroke-width", 1.5)
+      .attr("d", lineHR);
+
+    // Tooltip points for EDA
+    setupTooltip(
+      g.selectAll(".dot")
+        .data(edaData)
+        .enter().append("circle")
+          .attr("class", "dot")
+          .attr("cx", d => xScale(d.time_seconds))
+          .attr("cy", d => yScaleEDA(d.EDA))
+          .attr("r", 4)
+          .attr("fill", "transparent")
+          .attr("stroke", "transparent"),
+      "EDA"
+    );
+
+    // Tooltip points for HR
+    setupTooltip(
+      g.selectAll(".hr-dot")
+        .data(edaData)
+        .enter().append("circle")
+          .attr("class", "hr-dot")
+          .attr("cx", d => xScale(d.time_seconds))
+          .attr("cy", d => yScaleHR(d.HR))
+          .attr("r", 4)
+          .attr("fill", "transparent")
+          .attr("stroke", "transparent"),
+      "HR"
+    );
+
+    // Add vertical test period markers
+    const startTest = edaData.find(d => d.timestamp === "09:00:00")?.time_seconds;
+    const endTest = edaData.find(d => d.timestamp === "10:30:00")?.time_seconds;
+
+    if (startTest !== undefined) {
+      g.append("line")
+        .attr("class", "vline")
+        .attr("x1", xScale(startTest))
+        .attr("x2", xScale(startTest))
+        .attr("y1", 0)
+        .attr("y2", height)
+        .attr("stroke", "red")
+        .attr("stroke-dasharray", "4");
+      g.append("text")
+        .attr("class", "label")
+        .attr("x", xScale(startTest) + 5)
+        .attr("y", 15)
+        .text("Start Test (9:00)")
+        .attr("fill", "red");
+    }
+
+    if (endTest !== undefined) {
+      g.append("line")
+        .attr("class", "vline")
+        .attr("x1", xScale(endTest))
+        .attr("x2", xScale(endTest))
+        .attr("y1", 0)
+        .attr("y2", height)
+        .attr("stroke", "red")
+        .attr("stroke-dasharray", "4");
+      g.append("text")
+        .attr("class", "label")
+        .attr("x", xScale(endTest) + 5)
+        .attr("y", 15)
+        .text("End Test (10:30)")
+        .attr("fill", "red");
+    }
+  });
+}
+
+
+// Initial dataset
+let student = "S1";
+let exam = "Midterm 1";
+draw("Data/S1_processed/Midterm 1/EDA.csv");
+
+// Dropdown to change dataset
+document.getElementById("dataset-select").addEventListener("change", function () {
+    exam = this.value;
+    draw("Data/"+student+"_processed/"+exam+"/EDA.csv");
+});
+
+// Change student
+document.getElementById("student-select").addEventListener("change", function () {
+    student = this.value;
+    draw("Data/"+student+"_processed/"+exam+"/EDA.csv");
+});
