@@ -96,13 +96,26 @@ function handleData(edaData, hrData) {
         HR: hrMap.get(d.timestamp)
       }));
 
+    //get start timestamp to change x-axis later
+    const startTimestamp = edaData[0].timestamp; 
+    const parseTime = d3.timeParse("%H:%M:%S");
+    const formatTime = d3.timeFormat("%H:%M"); // format for axis ticks 
+    const startTime = parseTime(startTimestamp);
+
     // Define scales
     xScale.domain(d3.extent(edaData, d => d.time_seconds));
     yScaleEDA.domain([0, d3.max(edaData, d => d.EDA)]).nice();
     yScaleHR.domain([0, d3.max(edaData, d => d.HR)]).nice();
 
     // Draw axes
-    xAxisGroup.call(d3.axisBottom(xScale));
+    xAxisGroup.call(
+        d3.axisBottom(xScale)
+          .ticks(10)  // or adjust as needed
+          .tickFormat(d => {
+            const date = new Date(startTime.getTime() + d * 1000); // seconds to ms
+            return formatTime(date);  // e.g., "09:15"
+        })
+    );
     yAxisEDAGroup.call(d3.axisLeft(yScaleEDA));
     yAxisHRGroup.call(d3.axisRight(yScaleHR));
 
