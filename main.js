@@ -31,14 +31,57 @@ function setupTooltip(selection, field) {
     });
 }
 
-function draw(datasetBase) {
-  const edaPath = datasetBase;
-  const hrPath = datasetBase.replace("EDA", "HR");
+// Add vertical test period markers
+function addPeriodLine(g, edaData) {
+    let endTest;
+    let endTestText;
+    const startTest = edaData.find(d => d.timestamp === "09:00:00")?.time_seconds;
+    if (exam !== "Final") {
+        endTest = edaData.find(d => d.timestamp === "10:30:00")?.time_seconds;
+        endTestText = "End Test (10:30)";
+    }
+    else {
+        endTest = edaData.find(d => d.timestamp === "12:00:00")?.time_seconds;
+        endTestText = "End Test (12:00)";
+    }
 
-  Promise.all([
-    d3.csv(edaPath),
-    d3.csv(hrPath)
-  ]).then(([edaData, hrData]) => {
+    if (startTest !== undefined) {
+      g.append("line")
+        .attr("class", "vline")
+        .attr("x1", xScale(startTest))
+        .attr("x2", xScale(startTest))
+        .attr("y1", 0)
+        .attr("y2", height)
+        .attr("stroke", "red")
+        .attr("stroke-dasharray", "4");
+      g.append("text")
+        .attr("class", "label")
+        .attr("x", xScale(startTest) + 5)
+        .attr("y", 15)
+        .text("Start Test (9:00)")
+        .attr("fill", "red");
+    }
+
+    if (endTest !== undefined) {
+      g.append("line")
+        .attr("class", "vline")
+        .attr("x1", xScale(endTest))
+        .attr("x2", xScale(endTest))
+        .attr("y1", 0)
+        .attr("y2", height)
+        .attr("stroke", "red")
+        .attr("stroke-dasharray", "4");
+      g.append("text")
+        .attr("class", "label")
+        .attr("x", xScale(endTest) + 5)
+        .attr("y", 15)
+        .text(endTestText)
+        .attr("fill", "red");
+    }
+}
+
+
+function handleData(edaData, hrData) {
     // Create a lookup for HR by timestamp
     const hrMap = new Map();
     hrData.forEach(d => hrMap.set(d.timestamp, +d.HR));
@@ -112,43 +155,19 @@ function draw(datasetBase) {
       "HR"
     );
 
-    // Add vertical test period markers
-    const startTest = edaData.find(d => d.timestamp === "09:00:00")?.time_seconds;
-    const endTest = edaData.find(d => d.timestamp === "10:30:00")?.time_seconds;
+    addPeriodLine(g, edaData);
+}
 
-    if (startTest !== undefined) {
-      g.append("line")
-        .attr("class", "vline")
-        .attr("x1", xScale(startTest))
-        .attr("x2", xScale(startTest))
-        .attr("y1", 0)
-        .attr("y2", height)
-        .attr("stroke", "red")
-        .attr("stroke-dasharray", "4");
-      g.append("text")
-        .attr("class", "label")
-        .attr("x", xScale(startTest) + 5)
-        .attr("y", 15)
-        .text("Start Test (9:00)")
-        .attr("fill", "red");
-    }
-
-    if (endTest !== undefined) {
-      g.append("line")
-        .attr("class", "vline")
-        .attr("x1", xScale(endTest))
-        .attr("x2", xScale(endTest))
-        .attr("y1", 0)
-        .attr("y2", height)
-        .attr("stroke", "red")
-        .attr("stroke-dasharray", "4");
-      g.append("text")
-        .attr("class", "label")
-        .attr("x", xScale(endTest) + 5)
-        .attr("y", 15)
-        .text("End Test (10:30)")
-        .attr("fill", "red");
-    }
+function draw(datasetBase) {
+    //path for EDA and HR
+  const edaPath = datasetBase;
+  const hrPath = datasetBase.replace("EDA", "HR");
+    //load the dataset
+  Promise.all([
+    d3.csv(edaPath),
+    d3.csv(hrPath)
+  ]).then(([edaData, hrData]) => {
+    handleData(edaData, hrData);
   });
 }
 
