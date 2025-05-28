@@ -1,3 +1,10 @@
+body {
+    display: block;
+    max-width: 100ch;
+    margin-inline: auto;
+    padding: 32px;
+}
+
 #container {
     display: flex;
     justify-content: center;
