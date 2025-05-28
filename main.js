@@ -80,7 +80,37 @@ function addPeriodLine(g, edaData) {
     }
 }
 
-
+function addLegends(g, legendColors) {
+    // Legend data
+const legendData = [
+    { label: "EDA", color: "steelblue" },
+    { label: "Heart Rate", color: "darkorange" }
+  ];
+  
+  // Location of legends
+  const legend = g.append("g")
+    .attr("class", "legend")
+    .attr("transform", `translate(${margin.left}, ${margin.top})`);
+  
+  legendColors.forEach((d, i) => {
+    const legendRow = legend.append("g")
+      .attr("transform", `translate(0, ${i * 20})`);
+  
+    // Colored square
+    legendRow.append("rect")
+      .attr("width", 12)
+      .attr("height", 12)
+      .attr("fill", d.color);
+  
+    // Label
+    legendRow.append("text")
+      .attr("x", 18)
+      .attr("y", 10)
+      .attr("font-size", "12px")
+      .attr("fill", "black")
+      .text(d.label);
+  });
+}
 function handleData(edaData, hrData) {
     // Create a lookup for HR by timestamp
     const hrMap = new Map();
@@ -122,6 +152,11 @@ function handleData(edaData, hrData) {
     // Clear old elements
     g.selectAll(".line-path, .dot, .hr-dot, .vline, .label").remove();
 
+    const colors = [
+        { label: "EDA", color: "steelblue" },
+        { label: "Heart Rate", color: "darkorange" }
+    ];
+
     // EDA line
     g.append("path")
       .datum(edaData)
@@ -139,6 +174,28 @@ function handleData(edaData, hrData) {
       .attr("stroke", "darkorange")
       .attr("stroke-width", 1.5)
       .attr("d", lineHR);
+
+    //axis name
+    g.append("text")
+        .attr("class", "x-axis-label")
+        .attr("text-anchor", "middle")
+        .attr("x", width / 2)
+        .attr("y", height + margin.bottom - 10)
+        .text("Time");
+    g.append("text")
+        .attr("class", "y-axis-label")
+        .attr("text-anchor", "middle")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -height / 2)
+        .attr("y", -margin.left + 15)
+        .text("EDA (μS)");
+    g.append("text")
+        .attr("class", "y-axis-label")
+        .attr("text-anchor", "middle")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -height / 2)
+        .attr("y", width + margin.right - 15)
+        .text("Heart Rate");
 
     // Tooltip points for EDA
     setupTooltip(
@@ -169,6 +226,7 @@ function handleData(edaData, hrData) {
     );
 
     addPeriodLine(g, edaData);
+    addLegends(g, colors);
 }
 
 function draw(datasetBase) {
