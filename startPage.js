@@ -31,7 +31,7 @@ function addInteractionArea(x, y, textx, texty, fill, web, text) {
     svg.append('text')
         .attr('x', textx)
         .attr('y', texty)
-        .text('Head')
+        .text(text)
         .attr('fill', 'black')
         .attr('font-size', 12)
         .attr('class', 'interactive');
@@ -42,4 +42,5 @@ function addInteractionArea(x, y, textx, texty, fill, web, text) {
 //   : "/DSC106_lab01/";
 
 // console.log(BASE_PATH);
-addInteractionArea(410, 150, 400, 150, 'steelblue', 'index.html', 'EDA');
+addInteractionArea(410, 150, 400, 150, 'steelblue', 'EDA.html', 'EDA');
+addInteractionArea(440, 300, 400, 150, 'red', 'HR.html', 'HR');
