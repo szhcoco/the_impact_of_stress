@@ -249,16 +249,16 @@ function draw(datasetBase) {
 // Initial dataset
 let student = "S1";
 let exam = "Midterm 1";
-draw("Data/S1_processed/Midterm 1/EDA.csv");
+draw("Data/S1_processed/Midterm 1/HR.csv");
 
 // Dropdown to change dataset
 document.getElementById("dataset-select").addEventListener("change", function () {
     exam = this.value;
-    draw("Data/"+student+"_processed/"+exam+"/EDA.csv");
+    draw("Data/"+student+"_processed/"+exam+"/HR.csv");
 });
 
 // Change student
 document.getElementById("student-select").addEventListener("change", function () {
     student = this.value;
-    draw("Data/"+student+"_processed/"+exam+"/EDA.csv");
+    draw("Data/"+student+"_processed/"+exam+"/HR.csv");
 });
