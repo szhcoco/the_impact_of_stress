@@ -33,14 +33,11 @@ function addInteractionArea(x, y, textx, texty, fill, web, text) {
         .attr('y', texty)
         .text(text)
         .attr('fill', 'black')
-        .attr('font-size', 12)
+        .attr('font-size', 15)
         .attr('class', 'interactive');
 }
 
-// const BASE_PATH = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
-//   ? "/"
-//   : "/DSC106_lab01/";
-
-// console.log(BASE_PATH);
-addInteractionArea(410, 150, 400, 150, 'steelblue', 'EDA.html', 'EDA');
-addInteractionArea(440, 300, 400, 150, 'red', 'HR.html', 'HR');
+addInteractionArea(390, 50, 380, 50, '#7cbdf7', 'EDA.html', 'EDA');
+addInteractionArea(430, 170, 420, 170, '#f14b4e', 'HR.html', 'HR');
+addInteractionArea(500, 400, 490, 400, '#ff9631', 'temp.html','temp');
+addInteractionArea(290, 400, 280, 400, '#00d6a0', 'ACC.html', 'ACC');
