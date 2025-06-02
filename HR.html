@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>EDA Interactive Plot</title>
+  <link rel="stylesheet" href="global.css">
+  <script type="module" src="HR.js"></script>
+</head>
+
+<body>
+  <div id="container">
+    <div class="tooltip" style="opacity:0;"></div>
+    <div id="main">
+      <h2>EDA and HR change over exams</h2>
+      <label for="student-select">Select Student: </label>
+      <select id="student-select">
+        <option value="S1">Student 1</option>
+        <option value="S2">Student 2</option>
+        <option value="S3">Student 3</option>
+        <option value="S4">Student 4</option>
+        <option value="S5">Student 5</option>
+        <option value="S6">Student 6</option>
+        <option value="S7">Student 7</option>
+        <option value="S8">Student 8</option>
+        <option value="S9">Student 9</option>
+        <option value="S10">Student 10</option>
+      </select>
+      <svg width="800" height="500" class="mid1"></svg>
+      <svg width="800" height="500" class="mid2"></svg>
+      <svg width="800" height="500" class="final"></svg>
+    </div>
+  </div>
+  <p>The main topic that we have decided to investigate is the change of stress level before, during and after tests for individual students. We focus on the heart rate (HR) and electrodermal activity (EDA) as key indicators for stress, monitoring their values across the three phases and examining any notable patterns from the plots. Using d3, we built a dual-axis time plot for EDA and HR for midterm1, midterm2, and the final. We then added a dropdown menu to allow users to filter the data by test and student, and included tooltips on the lines for more detailed information. Two grid lines were also added to separate the periods before, during, and after the test, for clearer comparison of stress level across three time intervals.</p>
+
+    <p>One of the challenges we are facing is designing a clear and interesting visualization to show the patterns for EDA and HR. The current time plot appears cluttered, and the pattern does not align with our initial expectations. We observed that the heart rate tends to rise quickly before the exam, even higher than during the test. To better understand this, we need to examine the timestamp that the values are recorded, and consider revising our plot design, such as by setting a reasonable range for heart rate. In addition, we are considering adding animations using a human model to enable interactive design. For example, we would highlight the heart (for heart rate) and the brain (for eda), and possibly the hand (for temperature), and the limbs (for acc). When users click on these body parts, the corresponding visualizations would appear for further exploration.</p>
+</body>
+
+</html>
