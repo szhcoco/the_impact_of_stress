@@ -1,4 +1,5 @@
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
+import * as EDA from './EDA.js';
 
 
 // load data
@@ -103,8 +104,16 @@ async function renderScatterPlot() {
         .attr('r', 5)
         .style('fill-opacity', 0.7)
         .style('fill', 'steelblue')
-        .on('hover', (event, d) => {
-            
+        .on('mouseover', (event, d) => {
+            let svg1 = d3.select('#mid1');
+            let svg2 = d3.select('#mid2');
+            let svg3 = d3.select('#final');
+            console.log('hover');
+            console.log(d.student);
+
+            EDA.createPlot(svg1, 'dataset/S'+d.student+'_processed/Midterm 1/EDA.csv');
+            EDA.createPlot(svg2, 'dataset/S'+d.student+'_processed/Midterm 2/EDA.csv');
+            EDA.createPlot(svg3, 'dataset/S'+d.student+'_processed/Final/EDA.csv');
         });
 
     const gridlines = svg
