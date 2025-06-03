@@ -7,8 +7,11 @@ let svg3 = d3.select('#final');
 export function createPlot(svg, Path) {
     svg.selectAll("*").remove();
     let margin = { top: 20, right: 60, bottom: 50, left: 60 };
-    let width = +svg.attr("width") - margin.left - margin.right;
-    let height = +svg.attr("height") - margin.top - margin.bottom;
+    let boundingRect = svg.node().getBoundingClientRect();
+    let width = boundingRect.width - margin.left - margin.right;
+    let height = boundingRect.height - margin.top - margin.bottom;
+    // let width = +svg.attr("width") - margin.left - margin.right;
+    // let height = +svg.attr("height") - margin.top - margin.bottom;
     let g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
     let xScale = d3.scaleLinear().range([0, width]);
     let yScale = d3.scaleLinear().range([height, 0]);

@@ -1,0 +1,41 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+}
+
+#layout {
+    display: flex;
+    height: calc(100vh - 50px);
+}
+
+#chart, #container {
+    flex: 1;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow: auto;
+}
+
+svg {
+    width: 100%;
+    height: auto;
+}
+
+h1 {
+    text-align: center;
+    margin: 10px 0;
+}
+
+.tooltip {
+    width: 180px;
+    margin-right: 20px;
+    position: absolute; 
+    /* position:fixed; */
+    background-color: white;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    pointer-events: none;
+    font-size: 12px;
+    align-items: left;
+}

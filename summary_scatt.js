@@ -64,6 +64,14 @@ async function renderScatterPlot() {
         .attr('viewBox', `0 0 ${width} ${height}`)
         .attr('width', width) // <- Add this
         .attr('height', height);
+    
+    // const svg = d3
+    //     .select('#chart')
+    //     .append('svg')
+    //     .attr('viewBox', `0 0 ${width} ${height}`)
+    //     .attr('preserveAspectRatio', 'xMidYMid meet')
+    //     .style('width', '100%')
+    //     .style('height', '100%');
 
     // x axis = avg_eda
     const xScale = d3
@@ -74,7 +82,7 @@ async function renderScatterPlot() {
 
     const yScale = d3.scaleLinear().domain(d3.extent(data, (d) => +d.avg_score)).range([height, 0])
 
-    const margin = { top: 10, right: 10, bottom: 30, left: 20 };
+    const margin = { top: 10, right: 10, bottom: 50, left: 40 };
 
     const usableArea = {
         // start at y = 10 (y increase from top to bottom)
@@ -108,8 +116,8 @@ async function renderScatterPlot() {
             let svg1 = d3.select('#mid1');
             let svg2 = d3.select('#mid2');
             let svg3 = d3.select('#final');
-            console.log('hover');
-            console.log(d.student);
+
+            d3.select('#student-name').text('Student '+d.student);
 
             EDA.createPlot(svg1, 'dataset/S'+d.student+'_processed/Midterm 1/EDA.csv');
             EDA.createPlot(svg2, 'dataset/S'+d.student+'_processed/Midterm 2/EDA.csv');
@@ -129,17 +137,28 @@ async function renderScatterPlot() {
         .append('g')
         .attr('transform', `translate(0, ${usableArea.bottom})`)
         .attr('class', 'x-axis')
-        .call(xAxis);
+        .call(xAxis)
+        .append("text")
+        .attr('x', (usableArea.left + usableArea.right) / 2)
+        .attr('y', 30)
+        .attr('fill', 'black')
+        .attr('text-anchor', 'middle')
+        .text('Average EDA');
     
     // render yaxis
     svg
         .append('g')
         .attr('transform', `translate(${usableArea.left}, 0)`)
         .attr('class', 'y-axis')
-        .call(yAxis);
-
-
-
+        .call(yAxis)
+        .append('text')
+        .attr("class", "y-axis-label")
+        .attr("text-anchor", "middle")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -(usableArea.top + usableArea.bottom) / 2)
+        .attr("y", -30)
+        .attr("fill", "black")
+        .text("Average Grade");
 }
 
 const data = loadData();
