@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pulse & Performance | Exam Stress Visualization</title>
+    <script src="final_v1.js" type="module"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="final_style_v1.css">
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Pulse & Performance</h1>
+                <p class="hero-subtitle">Decoding the Hidden Relationship Between Stress and Academic Achievement</p>
+                
+                <div class="quote-card">
+                    <p class="quote-text">Stress is not what happens to us. It's our response to what happens. And response is something we can choose.</p>
+                    <p class="quote-author">— Maureen Killoran</p>
+                </div>
+                
+                <p>This interactive dashboard visualizes data from a study of 10 students wearing biometric sensors during exams. Explore how physiological stress responses correlate with academic performance and discover the surprising patterns that emerge.</p>
+            </div>
+        </div>
+        
+        <div class="scroll-down">
+            <i class="fas fa-chevron-down"></i>
+            <span>Explore the Data</span>
+        </div>
+    </section>
+
+    <!-- Background Section -->
+    <section id="background" style="background-color: #f1f3f5;">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">The Science Behind Stress</h2>
+                <p class="section-subtitle">Understanding how physiological responses impact cognitive performance</p>
+            </div>
+            
+            <div class="insights">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3 class="card-title">The Yerkes-Dodson Law</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>This century-old principle reveals that performance increases with physiological or mental arousal—but only up to a point. Beyond this optimal zone, performance deteriorates.</p>
+                        <div class="chart-container" id="yerkes-chart"></div>
+                        <p>Our data visualizes this relationship in an academic setting, showing how different stress levels correlate with exam performance.</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <h3 class="card-title">Physiological Indicators</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>During exams, students experience measurable physiological changes:</p>
+                        <ul style="padding-left: 20px; margin: 15px 0;">
+                            <li>Electrodermal Activity (EDA) - Measures skin conductance affected by sweat</li>
+                            <li>Heart Rate Variability (HRV) - Indicates autonomic nervous system activity</li>
+                            <li>Blood Volume Pulse (BVP) - Measures blood flow changes</li>
+                            <li>Temperature - Fluctuations in peripheral body temperature</li>
+                        </ul>
+                        <p>These signals combine to create our Composite Stress Index (CSI).</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <h3 class="card-title">Academic Performance</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>We analyzed exam results across three assessments:</p>
+                        <div style="display: flex; justify-content: space-between; margin: 20px 0;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 2rem; color: var(--accent-blue);">78%</div>
+                                <div>Midterm 1</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 2rem; color: var(--accent-green);">84%</div>
+                                <div>Midterm 2</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 2rem; color: var(--accent-purple);">82%</div>
+                                <div>Final</div>
+                            </div>
+                        </div>
+                        <p>By correlating these scores with biometric data, we discovered fascinating patterns of how stress impacts performance.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visualization Section -->
+    <section id="visualization">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Stress & Performance Dashboard</h2>
+                <p class="section-subtitle">Explore how physiological responses correlate with exam performance</p>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <span class="control-label">Student:</span>
+                    <select id="student-select">
+                        <option value="s1">Student 1</option>
+                        <option value="s2">Student 2</option>
+                        <option value="s3">Student 3</option>
+                        <option value="s4">Student 4</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <span class="control-label">Exam:</span>
+                    <select id="exam-select">
+                        <option value="midterm1">Midterm 1</option>
+                        <option value="midterm2">Midterm 2</option>
+                        <option value="final">Final Exam</option>
+                    </select>
+                </div>
+                
+                <button id="compare-btn" class="primary">
+                    <i class="fas fa-exchange-alt"></i> Compare Exams
+                </button>
+            </div>
+            
+            <div class="dashboard">
+                <div class="dashboard-card card-large">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="card-title">Exam Timeline Analysis</h3>
+                    </div>
+                    <div class="chart-container" id="timeline-chart"></div>
+                    <p>This visualization shows the stress level (blue) and performance (green) throughout the exam duration. Markers indicate when students pressed the event button during challenging questions.</p>
+                </div>
+                
+                <div class="dashboard-card card-small">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h3 class="card-title">Stress vs. Performance</h3>
+                    </div>
+                    <div class="chart-container" id="scatter-chart"></div>
+                    <p>The optimal performance zone appears at moderate stress levels. Notice how performance declines at both very low and very high stress levels.</p>
+                </div>
+                
+                <div class="dashboard-card card-small">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-wave-square"></i>
+                        </div>
+                        <h3 class="card-title">Physiological Signals</h3>
+                    </div>
+                    <div class="chart-container" id="signal-chart"></div>
+                    <p>Electrodermal activity (EDA) shows the most significant response during stressful moments, correlating with performance dips.</p>
+                </div>
+            </div>
+            
+            <div class="insights">
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <div class="insight-icon blue">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <h3 class="insight-title">Optimal Stress Zone</h3>
+                    </div>
+                    <div class="insight-content">
+                        <p>Student 1 performed best at a stress index of <span class="highlight">0.62</span> during Midterm 1, achieving 84% on that exam.</p>
+                        <p>This reveals the <span class="highlight">Yerkes-Dodson Law</span> in action - moderate stress enhances cognitive performance.</p>
+                    </div>
+                </div>
+                
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <div class="insight-icon green">
+                            <i class="fas fa-genderless"></i>
+                        </div>
+                        <h3 class="insight-title">Recovery Patterns</h3>
+                    </div>
+                    <div class="insight-content">
+                        <p>After difficult questions, Student 1 showed a <span class="highlight">42% faster recovery</span> during Midterm 2 compared to Midterm 1.</p>
+                        <p>This increased resilience correlated with a <span class="highlight">12% grade improvement</span> despite similar content difficulty.</p>
+                    </div>
+                </div>
+                
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <div class="insight-icon purple">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3 class="insight-title">Critical Moments</h3>
+                    </div>
+                    <div class="insight-content">
+                        <p>At minute 48 of the Final Exam, Student 1 experienced a <span class="warning">temperature drop of 0.8°C</span> coinciding with a challenging problem.</p>
+                        <p>This physiological response preceded a <span class="danger">15% performance dip</span> in subsequent questions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Conclusion Section -->
+    <section id="conclusion" style="background: linear-gradient(135deg, #4cc9f0 0%, #9d4edd 100%); color: white;">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title" style="color: white;">Key Takeaways</h2>
+                <p class="section-subtitle" style="color: rgba(255,255,255,0.8);">What we've learned about stress and performance</p>
+            </div>
+            
+            <div class="insights">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: rgba(255,255,255,0.1); color: white;">
+                            <i class="fas fa-balance-scale"></i>
+                        </div>
+                        <h3 class="card-title">Stress Isn't the Enemy</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>Our data clearly shows that moderate stress levels correlate with peak performance. The challenge is not eliminating stress, but managing it effectively.</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: rgba(255,255,255,0.1); color: white;">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h3 class="card-title">Recovery Matters</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>Students who recovered quickly from stressful moments performed better overall, regardless of how many stressful events they encountered.</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: rgba(255,255,255,0.1); color: white;">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="card-title">Predictive Patterns</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>Physiological responses like temperature drops often preceded performance declines by several minutes, suggesting opportunities for intervention.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 50px;">
+                <h3 style="font-size: 1.8rem; margin-bottom: 20px;">"It's not the load that breaks you down, it's the way you carry it."</h3>
+                <p style="font-style: italic;">— Lena Horne</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <h3 class="footer-title">Pulse & Performance</h3>
+                <p>An interactive visualization exploring the relationship between physiological stress responses and academic achievement.</p>
+            </div>
+            
+            <div class="footer-links">
+                <a href="#"><i class="fab fa-github"></i> GitHub</a>
+                <a href="#"><i class="fas fa-book"></i> Research Paper</a>
+                <a href="#"><i class="fas fa-database"></i> Dataset</a>
+                <a href="#"><i class="fas fa-envelope"></i> Contact</a>
+            </div>
+            
+            <div class="copyright">
+                <p>Created for Educational Purposes | Data Visualization Project | © 2023</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

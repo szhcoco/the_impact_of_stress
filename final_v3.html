@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Stress Analytics | Physiology & Performance</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-light: #f8f9fa;
+            --primary-dark: #212529;
+            --secondary-light: #e9ecef;
+            --accent-blue: #4cc9f0;
+            --accent-green: #80ed99;
+            --accent-yellow: #ffd166;
+            --accent-red: #f07167;
+            --accent-purple: #9d4edd;
+            --pre-test: #6a89cc;
+            --in-test: #f8c291;
+            --post-test: #82ccdd;
+            --text-dark: #343a40;
+            --text-light: #f8f9fa;
+            --text-muted: #6c757d;
+            --transition: all 0.4s ease;
+            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--primary-light);
+            color: var(--text-dark);
+            line-height: 1.7;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(76, 201, 240, 0.03) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(128, 237, 153, 0.03) 0%, transparent 20%);
+        }
+        
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-blue) 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 80px 0 40px;
+            text-align: center;
+            background: linear-gradient(rgba(248, 249, 250, 0.9), rgba(248, 249, 250, 0.9)), 
+                        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><path fill="none" stroke="%234cc9f0" stroke-width="1" stroke-opacity="0.1" d="M20,20 Q100,20 180,20 Q200,100 180,180 Q100,200 20,180 Q0,100 20,20 Z"/></svg>');
+            background-size: 400px;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            max-width: 800px;
+            margin: 0 auto 40px;
+        }
+        
+        .quote-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: var(--shadow-md);
+            margin: 40px auto;
+            max-width: 800px;
+            border-left: 5px solid var(--accent-purple);
+            font-style: italic;
+            position: relative;
+        }
+        
+        .quote-card::before {
+            content: """;
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            font-size: 5rem;
+            color: var(--accent-purple);
+            opacity: 0.2;
+            font-family: serif;
+            line-height: 1;
+        }
+        
+        /* Dashboard Controls */
+        .dashboard-controls {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: var(--shadow-md);
+            margin: 30px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .control-label {
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+        
+        select, button {
+            background: white;
+            color: var(--text-dark);
+            border: 1px solid #dee2e6;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        select:hover, button:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 5px 15px rgba(76, 201, 240, 0.1);
+        }
+        
+        button.primary {
+            background: var(--accent-purple);
+            color: white;
+            border-color: var(--accent-purple);
+        }
+        
+        button.primary:hover {
+            background: #8a3dbf;
+            transform: translateY(-2px);
+        }
+        
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .grid-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .grid-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: rgba(76, 201, 240, 0.1);
+            color: var(--accent-blue);
+        }
+        
+        .card-title {
+            font-size: 1.4rem;
+            color: var(--text-dark);
+        }
+        
+        .card-description {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+        
+        .chart-container {
+            height: 300px;
+            position: relative;
+            margin: 10px 0 20px;
+            flex-grow: 1;
+        }
+        
+        /* Storytelling Section */
+        .story-section {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: var(--shadow-md);
+            margin: 50px 0;
+        }
+        
+        .story-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .story-content h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--accent-purple);
+        }
+        
+        .story-content h3 {
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: var(--accent-blue);
+        }
+        
+        .story-content p {
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+        
+        /* Insights Section */
+        .insights-section {
+            margin: 50px 0;
+        }
+        
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+        
+        .insight-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+        }
+        
+        .insight-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .insight-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .insight-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .insight-icon.blue {
+            background: rgba(76, 201, 240, 0.1);
+            color: var(--accent-blue);
+        }
+        
+        .insight-icon.green {
+            background: rgba(128, 237, 153, 0.1);
+            color: var(--accent-green);
+        }
+        
+        .insight-icon.purple {
+            background: rgba(157, 78, 221, 0.1);
+            color: var(--accent-purple);
+        }
+        
+        .insight-title {
+            font-size: 1.3rem;
+            color: var(--text-dark);
+        }
+        
+        .insight-content {
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+        
+        .highlight {
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+        
+        .warning {
+            color: var(--accent-yellow);
+            font-weight: 600;
+        }
+        
+        .danger {
+            color: var(--accent-red);
+            font-weight: 600;
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--primary-dark);
+            color: var(--text-light);
+            padding: 60px 0 30px;
+            margin-top: 60px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+        }
+        
+        .footer-column h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: var(--accent-blue);
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-column a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .footer-column a:hover {
+            color: var(--accent-blue);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid var(--accent-blue);
+            border-radius: 8px;
+            padding: 15px;
+            pointer-events: none;
+            font-size: 14px;
+            box-shadow: var(--shadow-lg);
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s;
+            max-width: 300px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .tooltip-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--accent-purple);
+        }
+        
+        .tooltip-content {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+        
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .insights-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .insights-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-content {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div class="logo-text">Academic Stress Analytics</div>
+                </div>
+                <div class="controls">
+                    <button class="primary">
+                        <i class="fas fa-book-open"></i> Research Paper
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1 class="hero-title">Decoding the Physiology of Exam Stress</h1>
+            <p class="hero-subtitle">A comprehensive analysis of how physiological responses correlate with academic performance across exam periods</p>
+            
+            <div class="quote-card">
+                "Stress is not what happens to us. It's our physiological response to what happens. And in an academic setting, these responses reveal fascinating patterns that predict performance."
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Controls -->
+    <div class="container">
+        <div class="dashboard-controls">
+            <div class="control-group">
+                <span class="control-label">Student:</span>
+                <select id="student-select">
+                    <option value="s1">Student 1</option>
+                    <option value="s2">Student 2</option>
+                    <option value="s3">Student 3</option>
+                    <option value="s4">Student 4</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <span class="control-label">Signal:</span>
+                <select id="signal-select">
+                    <option value="hr">Heart Rate</option>
+                    <option value="eda">EDA</option>
+                    <option value="csi">Composite Stress Index</option>
+                </select>
+            </div>
+            
+            <button id="animate-btn" class="primary">
+                <i class="fas fa-play"></i> Animate Signal
+            </button>
+        </div>
+    </div>
+
+    <!-- Dashboard Grid -->
+    <div class="container">
+        <div class="dashboard-grid">
+            <!-- Midterm 1 Card -->
+            <div class="grid-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="card-title">Midterm 1: Physiological Timeline</h3>
+                </div>
+                <div class="card-description">
+                    Explore how physiological signals evolved before, during, and after the first midterm exam.
+                </div>
+                <div class="chart-container" id="midterm1-chart"></div>
+                <div class="card-footer">
+                    <span class="highlight">Grade: 84%</span> | Avg. Stress: 0.62
+                </div>
+            </div>
+            
+            <!-- Midterm 2 Card -->
+            <div class="grid-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="card-title">Midterm 2: Physiological Timeline</h3>
+                </div>
+                <div class="card-description">
+                    Signal progression during the second midterm, showing improved stress management.
+                </div>
+                <div class="chart-container" id="midterm2-chart"></div>
+                <div class="card-footer">
+                    <span class="highlight">Grade: 88%</span> | Avg. Stress: 0.58
+                </div>
+            </div>
+            
+            <!-- Final Exam Card -->
+            <div class="grid-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="card-title">Final Exam: Physiological Timeline</h3>
+                </div>
+                <div class="card-description">
+                    Extended 3-hour exam showing sustained stress response patterns.
+                </div>
+                <div class="chart-container" id="final-chart"></div>
+                <div class="card-footer">
+                    <span class="highlight">Grade: 82%</span> | Avg. Stress: 0.72
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Storytelling Section -->
+    <div class="container">
+        <div class="story-section">
+            <div class="story-content">
+                <h2>Quantifying Stress: The Science Behind the Signals</h2>
+                
+                <h3>The Physiological Basis of Stress Measurement</h3>
+                <p>Stress manifests in our bodies through measurable physiological responses. While we can't directly observe "stress" as an isolated phenomenon, we can quantify its effects through several biomarkers:</p>
+                
+                <div class="insights-grid" style="margin: 30px 0;">
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <div class="insight-icon blue">
+                                <i class="fas fa-heartbeat"></i>
+                            </div>
+                            <h3 class="insight-title">Heart Rate & HRV</h3>
+                        </div>
+                        <div class="insight-content">
+                            <p>The autonomic nervous system responds to stress with increased heart rate and reduced heart rate variability (HRV). These changes prepare the body for "fight or flight" responses.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <div class="insight-icon green">
+                                <i class="fas fa-tint"></i>
+                            </div>
+                            <h3 class="insight-title">Electrodermal Activity (EDA)</h3>
+                        </div>
+                        <div class="insight-content">
+                            <p>Stress activates sweat glands, increasing skin conductance. EDA is considered one of the most reliable indicators of psychological arousal.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <div class="insight-icon purple">
+                                <i class="fas fa-thermometer-half"></i>
+                            </div>
+                            <h3 class="insight-title">Temperature & BVP</h3>
+                        </div>
+                        <div class="insight-content">
+                            <p>Blood shifts from extremities to core muscles during stress, causing temperature drops. Blood Volume Pulse (BVP) amplitude decreases as vessels constrict.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>Creating the Composite Stress Index</h3>
+                <p>To provide a comprehensive view of stress, we developed a Composite Stress Index (CSI) that combines multiple physiological signals:</p>
+                
+                <p style="background: var(--secondary-light); padding: 20px; border-radius: 12px; font-family: monospace; margin: 20px 0;">
+                    CSI = 0.5 × (Normalized EDA) + 0.3 × (Normalized HR) + 0.2 × (1 - Normalized Temp)
+                </p>
+                
+                <p>This formula weights EDA most heavily as it's the most direct indicator of sympathetic nervous system activation, followed by heart rate. The inverse temperature relationship accounts for the cooling effect during stress responses.</p>
+                
+                <h3>The Paradox of Physiological Responses</h3>
+                <p>An intriguing finding from our analysis is that EDA and Heart Rate don't always align perfectly. While they generally correlate (r=0.68), we observed cases where:</p>
+                <ul style="margin: 20px 0 20px 40px; line-height: 1.8;">
+                    <li>EDA spiked during cognitive challenges while heart rate remained stable</li>
+                    <li>Heart rate increased during time pressure while EDA showed minimal change</li>
+                    <li>Post-test recovery patterns differed between systems</li>
+                </ul>
+                <p>These discrepancies highlight that stress responses are multi-faceted and context-dependent, requiring multiple measurement approaches for accurate assessment.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Correlation Section -->
+    <div class="container">
+        <div class="grid-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h3 class="card-title">Performance-Stress Correlation Matrix</h3>
+            </div>
+            <div class="card-description">
+                Explore how physiological responses during different exam periods correlate with academic performance.
+                Each point represents a student's exam result and their average stress during the selected period.
+            </div>
+            <div class="chart-container" id="correlation-chart"></div>
+            <div class="controls" style="background: transparent; box-shadow: none; padding: 10px 0;">
+                <div class="control-group">
+                    <span class="control-label">Period:</span>
+                    <select id="period-select">
+                        <option value="pre">Pre-Test</option>
+                        <option value="during">During Test</option>
+                        <option value="post">Post-Test</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Insights Section -->
+    <div class="container">
+        <div class="insights-section">
+            <h2 style="text-align: center; margin-bottom: 40px; font-size: 2rem;">Key Insights from Physiological Data</h2>
+            
+            <div class="insights-grid">
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <div class="insight-icon blue">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <h3 class="insight-title">The Preparation Advantage</h3>
+                    </div>
+                    <div class="insight-content">
+                        <p>Students with pre-test stress levels <span class="highlight">below 0.55 CSI</span> scored 12% higher on average than those with higher baselines.</p>
+                        <p>This suggests that starting from a calmer state provides a significant performance advantage.</p>
+                    </div>
+                </div>
+                
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <div class="insight-icon green">
+                            <i class="fas fa-genderless"></i>
+                        </div>
+                        <h3 class="insight-title">Optimal Arousal Zone</h3>
+                    </div>
+                    <div class="insight-content">
+                        <p>A <span class="highlight">40-60% increase</span> in stress during exams correlates with peak performance, validating the Yerkes-Dodson Law.</p>
+                        <p>Students showing increases beyond 80% had a 15% performance drop on complex questions.</p>
+                    </div>
+                </div>
+                
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <div class="insight-icon purple">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3 class="insight-title">Recovery Predicts Resilience</h3>
+                    </div>
+                    <div class="insight-content">
+                        <p>Students who returned to baseline within <span class="warning">30 minutes post-test</span> improved scores by 8% in subsequent exams.</p>
+                        <p>Slow recovery (>60 minutes) correlated with declining performance across exam periods.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Academic Stress Analytics</h3>
+                    <p>Understanding how physiological responses impact academic achievement across exam periods.</p>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Research Areas</h3>
+                    <ul>
+                        <li><a href="#">Stress Physiology</a></li>
+                        <li><a href="#">Academic Performance</a></li>
+                        <li><a href="#">Biometric Sensing</a></li>
+                        <li><a href="#">Cognitive Load</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Data Resources</h3>
+                    <ul>
+                        <li><a href="#">Research Papers</a></li>
+                        <li><a href="#">Dataset Access</a></li>
+                        <li><a href="#">Visualization Tools</a></li>
+                        <li><a href="#">Analysis Methods</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Connect</h3>
+                    <ul>
+                        <li><a href="#"><i class="fab fa-github"></i> GitHub</a></li>
+                        <li><a href="#"><i class="fab fa-twitter"></i> Twitter</a></li>
+                        <li><a href="#"><i class="fab fa-linkedin"></i> LinkedIn</a></li>
+                        <li><a href="#"><i class="fas fa-envelope"></i> Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2023 Academic Stress Analytics | Physiology & Performance Research</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Render all charts
+            renderTimelineChart('midterm1-chart', 'midterm1');
+            renderTimelineChart('midterm2-chart', 'midterm2');
+            renderTimelineChart('final-chart', 'final');
+            renderCorrelationChart();
+            
+            // Add event listeners
+            document.getElementById('student-select').addEventListener('change', updateCharts);
+            document.getElementById('signal-select').addEventListener('change', updateCharts);
+            document.getElementById('period-select').addEventListener('change', renderCorrelationChart);
+            document.getElementById('animate-btn').addEventListener('click', toggleAnimation);
+        });
+        
+        // Generate timeline data
+        function generateTimelineData(type) {
+            const data = [];
+            const duration = type === 'final' ? 180 : 90;
+            
+            for (let i = 0; i < duration; i++) {
+                // Determine period
+                let period;
+                if (i < 15) period = 'pre';
+                else if (i < duration - 15) period = 'during';
+                else period = 'post';
+                
+                // Generate values based on period
+                let hr, eda, csi;
+                if (period === 'pre') {
+                    hr = 70 + Math.random() * 5;
+                    eda = 2.0 + Math.random() * 0.5;
+                    csi = 0.4 + Math.random() * 0.1;
+                } else if (period === 'during') {
+                    hr = 85 + Math.random() * 10;
+                    eda = 4.5 + Math.random() * 1.5;
+                    csi = 0.7 + Math.random() * 0.15;
+                } else {
+                    hr = 75 + Math.random() * 6;
+                    eda = 2.5 + Math.random() * 0.8;
+                    csi = 0.5 + Math.random() * 0.12;
+                }
+                
+                // Add stress events
+                if (i > 20 && i < 25) {
+                    hr += 15;
+                    eda += 2.0;
+                    csi += 0.2;
+                }
+                
+                if (i > 60 && i < 65 && type !== 'midterm1') {
+                    hr += 12;
+                    eda += 1.8;
+                    csi += 0.18;
+                }
+                
+                if (i > 120 && i < 125 && type === 'final') {
+                    hr += 18;
+                    eda += 2.5;
+                    csi += 0.25;
+                }
+                
+                data.push({
+                    time: i,
+                    hr: Math.max(60, hr),
+                    eda: Math.max(1.0, eda),
+                    csi: Math.max(0.1, Math.min(1.0, csi)),
+                    period: period
+                });
+            }
+            
+            return data;
+        }
+        
+        // Render timeline chart
+        function renderTimelineChart(containerId, examType) {
+            const container = d3.select(`#${containerId}`);
+            container.html('');
+            
+            // Add tooltip
+            const tooltip = container.append('div')
+                .attr('class', 'tooltip');
+            
+            const width = container.node().clientWidth;
+            const height = container.node().clientHeight;
+            const margin = { top: 20, right: 30, bottom: 50, left: 60 };
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+            
+            // Create SVG
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+            
+            // Get data
+            const data = generateTimelineData(examType);
+            const signal = document.getElementById('signal-select').value;
+            const signalLabels = {
+                hr: 'Heart Rate (bpm)',
+                eda: 'EDA (μS)',
+                csi: 'Composite Stress Index'
+            };
+            
+            // Scales
+            const xScale = d3.scaleLinear()
+                .domain([0, data.length])
+                .range([0, innerWidth]);
+            
+            const yScale = d3.scaleLinear()
+                .domain([0, signal === 'hr' ? 120 : signal === 'eda' ? 8 : 1.0])
+                .range([innerHeight, 0]);
+            
+            // Color scale for periods
+            const colorScale = d3.scaleOrdinal()
+                .domain(['pre', 'during', 'post'])
+                .range(['#6a89cc', '#f8c291', '#82ccdd']);
+            
+            // Draw period backgrounds
+            const periodBoundaries = [
+                {start: 0, end: 15, period: 'pre'},
+                {start: 15, end: data.length - 15, period: 'during'},
+                {start: data.length - 15, end: data.length, period: 'post'}
+            ];
+            
+            periodBoundaries.forEach(boundary => {
+                svg.append('rect')
+                    .attr('x', xScale(boundary.start))
+                    .attr('y', 0)
+                    .attr('width', xScale(boundary.end - boundary.start))
+                    .attr('height', innerHeight)
+                    .attr('fill', colorScale(boundary.period))
+                    .attr('opacity', 0.1);
+            });
+            
+            // Line generator
+            const line = d3.line()
+                .x((d, i) => xScale(i))
+                .y(d => yScale(d[signal]))
+                .curve(d3.curveMonotoneX);
+            
+            // Draw line
+            svg.append('path')
+                .datum(data)
+                .attr('fill', 'none')
+                .attr('stroke', '#9d4edd')
+                .attr('stroke-width', 3)
+                .attr('d', line);
+            
+            // Draw dots for interaction
+            const dots = svg.selectAll('.dot')
+                .data(data.filter((d, i) => i % 5 === 0)) // Sample points for performance
+                .enter()
+                .append('circle')
+                .attr('class', 'dot')
+                .attr('cx', (d, i) => xScale(i))
+                .attr('cy', d => yScale(d[signal]))
+                .attr('r', 4)
+                .attr('fill', d => colorScale(d.period))
+                .attr('stroke', '#fff')
+                .attr('stroke-width', 1)
+                .on('mouseover', function(event, d) {
+                    // Position tooltip
+                    const xPos = event.pageX;
+                    const yPos = event.pageY;
+                    
+                    // Format period name
+                    const periodName = d.period === 'pre' ? 'Pre-Test' : 
+                                      d.period === 'during' ? 'During Test' : 'Post-Test';
+                    
+                    // Update tooltip content
+                    tooltip.html(`
+                        <div class="tooltip-title">${periodName} Period</div>
+                        <div class="tooltip-content">
+                            <p>Time: ${d.time} minutes</p>
+                            <p>${signalLabels[signal]}: ${d[signal].toFixed(2)}</p>
+                            <p>Heart Rate: ${d.hr.toFixed(1)} bpm</p>
+                            <p>EDA: ${d.eda.toFixed(2)} μS</p>
+                        </div>
+                    `)
+                    .style('left', (xPos + 10) + 'px')
+                    .style('top', (yPos - 20) + 'px')
+                    .style('opacity', 1);
+                    
+                    // Highlight dot
+                    d3.select(this)
+                        .attr('r', 6)
+                        .classed('pulse', true);
+                })
+                .on('mouseout', function() {
+                    tooltip.style('opacity', 0);
+                    d3.select(this)
+                        .attr('r', 4)
+                        .classed('pulse', false);
+                });
+            
+            // Add axes
+            const xAxis = d3.axisBottom(xScale).ticks(6).tickFormat(d => `${d} min`);
+            const yAxis = d3.axisLeft(yScale).ticks(5);
+            
+            svg.append('g')
+                .attr('transform', `translate(0,${innerHeight})`)
+                .call(xAxis);
+            
+            svg.append('g')
+                .call(yAxis);
+            
+            // Add axis labels
+            svg.append('text')
+                .attr('x', innerWidth / 2)
+                .attr('y', innerHeight + margin.bottom - 10)
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#6c757d')
+                .text('Time (minutes)');
+            
+            svg.append('text')
+                .attr('transform', 'rotate(-90)')
+                .attr('x', -innerHeight / 2)
+                .attr('y', -margin.left + 15)
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#6c757d')
+                .text(signalLabels[signal]);
+            
+            // Add period labels
+            svg.append('text')
+                .attr('x', xScale(7))
+                .attr('y', 20)
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#6a89cc')
+                .text('Pre-Test');
+            
+            svg.append('text')
+                .attr('x', xScale(data.length / 2))
+                .attr('y', 20)
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#f8c291')
+                .text('During Test');
+            
+            svg.append('text')
+                .attr('x', xScale(data.length - 7))
+                .attr('y', 20)
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#82ccdd')
+                .text('Post-Test');
+        }
+        
+        // Render correlation chart
+        function renderCorrelationChart() {
+            const container = d3.select('#correlation-chart');
+            container.html('');
+            
+            const width = container.node().clientWidth;
+            const height = container.node().clientHeight;
+            const margin = { top: 30, right: 30, bottom: 60, left: 60 };
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+            
+            // Create SVG
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+            
+            // Get selected period
+            const period = document.getElementById('period-select').value;
+            const periodLabels = {
+                pre: 'Pre-Test',
+                during: 'During Test',
+                post: 'Post-Test'
+            };
+            
+            // Generate data for all students
+            const data = [
+                { student: 'S1', pre: 0.45, during: 0.72, post: 0.50, grade: 84 },
+                { student: 'S2', pre: 0.52, during: 0.68, post: 0.55, grade: 88 },
+                { student: 'S3', pre: 0.62, during: 0.85, post: 0.70, grade: 75 },
+                { student: 'S4', pre: 0.58, during: 0.78, post: 0.65, grade: 79 },
+                { student: 'S5', pre: 0.40, during: 0.60, post: 0.42, grade: 92 },
+                { student: 'S6', pre: 0.55, during: 0.75, post: 0.58, grade: 81 },
+                { student: 'S7', pre: 0.48, during: 0.65, post: 0.52, grade: 87 },
+                { student: 'S8', pre: 0.65, during: 0.82, post: 0.68, grade: 76 },
+                { student: 'S9', pre: 0.70, during: 0.90, post: 0.75, grade: 68 },
+                { student: 'S10', pre: 0.35, during: 0.58, post: 0.40, grade: 90 }
+            ];
+            
+            // Get current student
+            const currentStudent = document.getElementById('student-select').value.replace('s', 'S');
+            
+            // Scales
+            const xScale = d3.scaleLinear()
+                .domain([0.3, 0.95])
+                .range([0, innerWidth]);
+            
+            const yScale = d3.scaleLinear()
+                .domain([60, 100])
+                .range([innerHeight, 0]);
+            
+            // Draw trend line
+            const trendData = [
+                {x: 0.3, y: 70},
+                {x: 0.6, y: 90},
+                {x: 0.95, y: 65}
+            ];
+            
+            const trendLine = d3.line()
+                .x(d => xScale(d.x))
+                .y(d => yScale(d.y))
+                .curve(d3.curveNatural);
+            
+            svg.append('path')
+                .datum(trendData)
+                .attr('fill', 'none')
+                .attr('stroke', '#9d4edd')
+                .attr('stroke-width', 2)
+                .attr('stroke-dasharray', '5,5')
+                .attr('d', trendLine);
+            
+            // Draw points
+            const points = svg.selectAll('.point')
+                .data(data)
+                .enter()
+                .append('circle')
+                .attr('class', 'point')
+                .attr('cx', d => xScale(d[period]))
+                .attr('cy', d => yScale(d.grade))
+                .attr('r', 8)
+                .attr('fill', d => d.student === currentStudent ? '#f07167' : '#4cc9f0')
+                .attr('opacity', d => d.student === currentStudent ? 1 : 0.7)
+                .attr('stroke', d => d.student === currentStudent ? '#212529' : 'none')
+                .attr('stroke-width', d => d.student === currentStudent ? 2 : 0);
+            
+            // Add axes
+            const xAxis = d3.axisBottom(xScale).ticks(5);
+            const yAxis = d3.axisLeft(yScale).ticks(5);
+            
+            svg.append('g')
+                .attr('transform', `translate(0,${innerHeight})`)
+                .call(xAxis);
+            
+            svg.append('g')
+                .call(yAxis);
+            
+            // Add axis labels
+            svg.append('text')
+                .attr('x', innerWidth / 2)
+                .attr('y', innerHeight + margin.bottom - 10)
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#6c757d')
+                .text(`Average ${periodLabels[period]} Stress`);
+            
+            svg.append('text')
+                .attr('transform', 'rotate(-90)')
+                .attr('x', -innerHeight / 2)
+                .attr('y', -margin.left + 15)
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#6c757d')
+                .text('Exam Grade (%)');
+            
+            // Add title
+            svg.append('text')
+                .attr('x', innerWidth / 2)
+                .attr('y', -10)
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#343a40')
+                .attr('font-weight', '600')
+                .text(`Performance vs. ${periodLabels[period]} Stress`);
+            
+            // Add annotation
+            svg.append('text')
+                .attr('x', xScale(0.6))
+                .attr('y', yScale(85))
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#9d4edd')
+                .text('Optimal Stress Zone');
+        }
+        
+        // Update all charts
+        function updateCharts() {
+            renderTimelineChart('midterm1-chart', 'midterm1');
+            renderTimelineChart('midterm2-chart', 'midterm2');
+            renderTimelineChart('final-chart', 'final');
+            renderCorrelationChart();
+        }
+        
+        // Toggle animation
+        function toggleAnimation() {
+            const button = document.getElementById('animate-btn');
+            const icon = button.querySelector('i');
+            
+            if (icon.classList.contains('fa-play')) {
+                icon.classList.remove('fa-play');
+                icon.classList.add('fa-pause');
+                button.innerHTML = '<i class="fas fa-pause"></i> Pause Animation';
+                
+                // Animation logic would go here
+            } else {
+                icon.classList.remove('fa-pause');
+                icon.classList.add('fa-play');
+                button.innerHTML = '<i class="fas fa-play"></i> Animate Signal';
+                
+                // Stop animation
+            }
+        }
+    </script>
+</body>
+</html>

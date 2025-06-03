@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Stress Analytics | Period Analysis</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-light: #f8f9fa;
+            --primary-dark: #212529;
+            --secondary-light: #e9ecef;
+            --accent-blue: #4cc9f0;
+            --accent-green: #80ed99;
+            --accent-yellow: #ffd166;
+            --accent-red: #f07167;
+            --accent-purple: #9d4edd;
+            --pre-test: #6a89cc;
+            --in-test: #f8c291;
+            --post-test: #82ccdd;
+            --text-dark: #343a40;
+            --text-light: #f8f9fa;
+            --text-muted: #6c757d;
+            --transition: all 0.4s ease;
+            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--primary-light);
+            color: var(--text-dark);
+            line-height: 1.7;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(76, 201, 240, 0.03) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(128, 237, 153, 0.03) 0%, transparent 20%);
+        }
+        
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-blue) 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 60px 0 30px;
+            text-align: center;
+            background: linear-gradient(rgba(248, 249, 250, 0.9), rgba(248, 249, 250, 0.9)), 
+                        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><path fill="none" stroke="%234cc9f0" stroke-width="1" stroke-opacity="0.1" d="M20,20 Q100,20 180,20 Q200,100 180,180 Q100,200 20,180 Q0,100 20,20 Z"/></svg>');
+            background-size: 400px;
+        }
+        
+        .hero-title {
+            font-size: 3.2rem;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            max-width: 800px;
+            margin: 0 auto 30px;
+        }
+        
+        .period-legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .period-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+        
+        .period-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        
+        .pre-test-color { background-color: var(--pre-test); }
+        .in-test-color { background-color: var(--in-test); }
+        .post-test-color { background-color: var(--post-test); }
+        
+        /* Dashboard Controls */
+        .dashboard-controls {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: var(--shadow-md);
+            margin: 30px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .control-label {
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+        
+        select, button {
+            background: white;
+            color: var(--text-dark);
+            border: 1px solid #dee2e6;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        select:hover, button:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 5px 15px rgba(76, 201, 240, 0.1);
+        }
+        
+        button.primary {
+            background: var(--accent-purple);
+            color: white;
+            border-color: var(--accent-purple);
+        }
+        
+        button.primary:hover {
+            background: #8a3dbf;
+            transform: translateY(-2px);
+        }
+        
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .grid-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+        }
+        
+        .grid-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: rgba(76, 201, 240, 0.1);
+            color: var(--accent-blue);
+        }
+        
+        .card-title {
+            font-size: 1.4rem;
+            color: var(--text-dark);
+        }
+        
+        .chart-container {
+            height: 300px;
+            position: relative;
+            margin: 20px 0;
+        }
+        
+        .col-6 {
+            grid-column: span 6;
+        }
+        
+        .col-4 {
+            grid-column: span 4;
+        }
+        
+        .col-12 {
+            grid-column: span 12;
+        }
+        
+        /* Insights Section */
+        .insights-section {
+            margin: 50px 0;
+        }
+        
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+        
+        .insight-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+        }
+        
+        .insight-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .insight-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .insight-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .insight-icon.blue {
+            background: rgba(76, 201, 240, 0.1);
+            color: var(--accent-blue);
+        }
+        
+        .insight-icon.green {
+            background: rgba(128, 237, 153, 0.1);
+            color: var(--accent-green);
+        }
+        
+        .insight-icon.purple {
+            background: rgba(157, 78, 221, 0.1);
+            color: var(--accent-purple);
+        }
+        
+        .insight-title {
+            font-size: 1.3rem;
+            color: var(--text-dark);
+        }
+        
+        .insight-content {
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+        
+        .highlight {
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+        
+        .warning {
+            color: var(--accent-yellow);
+            font-weight: 600;
+        }
+        
+        .danger {
+            color: var(--accent-red);
+            font-weight: 600;
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--primary-dark);
+            color: var(--text-light);
+            padding: 60px 0 30px;
+            margin-top: 60px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+        }
+        
+        .footer-column h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: var(--accent-blue);
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-column a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .footer-column a:hover {
+            color: var(--accent-blue);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .col-6, .col-4, .col-12 {
+                grid-column: span 1;
+            }
+            
+            .insights-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .dashboard-controls {
+                flex-direction: column;
+            }
+            
+            .insights-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-content {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <div class="logo-text">Stress & Performance Analytics</div>
+                </div>
+                <div class="controls">
+                    <button class="primary">
+                        <i class="fas fa-download"></i> Download Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1 class="hero-title">Exam Period Stress Analysis</h1>
+            <p class="hero-subtitle">Explore how physiological stress responses change across pre-test, in-test, and post-test periods and how they correlate with exam performance</p>
+            
+            <div class="period-legend">
+                <div class="period-item">
+                    <div class="period-color pre-test-color"></div>
+                    <span>Pre-Test Period</span>
+                </div>
+                <div class="period-item">
+                    <div class="period-color in-test-color"></div>
+                    <span>In-Test Period</span>
+                </div>
+                <div class="period-item">
+                    <div class="period-color post-test-color"></div>
+                    <span>Post-Test Period</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Controls -->
+    <div class="container">
+        <div class="dashboard-controls">
+            <div class="control-group">
+                <span class="control-label">Student:</span>
+                <select id="student-select">
+                    <option value="s1">Student 1</option>
+                    <option value="s2">Student 2</option>
+                    <option value="s3">Student 3</option>
+                    <option value="s4">Student 4</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <span class="control-label">Exam:</span>
+                <select id="exam-select">
+                    <option value="midterm1">Midterm 1</option>
+                    <option value="midterm2">Midterm 2</option>
+                    <option value="final">Final Exam</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <span class="control-label">Signal:</span>
+                <select id="signal-select">
+                    <option value="hr">Heart Rate</option>
+                    <option value="eda">EDA</option>
+                    <option value="temp">Temperature</option>
+                    <option value="bvp">BVP</option>
+                </select>
+            </div>
+            
+            <button id="compare-btn" class="primary">
+                <i class="fas fa-exchange-alt"></i> Compare Periods
+            </button>
+        </div>
+    </div>
+
+    <!-- Dashboard Grid -->
+    <div class="container">
+        <div class="dashboard-grid">
+            <div class="grid-card col-6">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3 class="card-title">Period Comparison by Signal</h3>
+                </div>
+                <div class="chart-container" id="period-chart"></div>
+                <p>Comparison of physiological signals across pre-test, in-test, and post-test periods. In-test periods show the highest stress responses.</p>
+            </div>
+            
+            <div class="grid-card col-6">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3 class="card-title">Performance by Period Response</h3>
+                </div>
+                <div class="chart-container" id="performance-chart"></div>
+                <p>Students with moderate stress increases during in-test periods performed better than those with extreme stress responses.</p>
+            </div>
+            
+            <div class="grid-card col-4">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-running"></i>
+                    </div>
+                    <h3 class="card-title">Pre-Test Baseline</h3>
+                </div>
+                <div class="chart-container" id="pre-test-chart"></div>
+                <p>Pre-test stress levels set the baseline for exam performance. Students with lower baselines performed better.</p>
+            </div>
+            
+            <div class="grid-card col-4">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-pencil-alt"></i>
+                    </div>
+                    <h3 class="card-title">In-Test Response</h3>
+                </div>
+                <div class="chart-container" id="in-test-chart"></div>
+                <p>Optimal in-test stress increases correlate with better grades. Extreme stress leads to performance drops.</p>
+            </div>
+            
+            <div class="grid-card col-4">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-wind"></i>
+                    </div>
+                    <h3 class="card-title">Post-Test Recovery</h3>
+                </div>
+                <div class="chart-container" id="post-test-chart"></div>
+                <p>Faster recovery after exams correlates with better performance in subsequent tests.</p>
+            </div>
+            
+            <div class="grid-card col-12">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-wave-square"></i>
+                    </div>
+                    <h3 class="card-title">Signal Timeline Across Periods</h3>
+                </div>
+                <div class="chart-container" id="timeline-chart"></div>
+                <p>Physiological signals across all periods. Vertical lines mark transitions between periods.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Insights Section -->
+    <div class="container">
+        <div class="insights-section">
+            <h2 style="text-align: center; margin-bottom: 40px; font-size: 2rem;">Key Insights from Period Analysis</h2>
+            
+            <div class="insights-grid">
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <div class="insight-icon blue">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <h3 class="insight-title">Pre-Test Baseline Matters</h3>
+                    </div>
+                    <div class="insight-content">
+                        <p>Students with pre-test stress levels <span class="highlight">below 0.55 CSI</span> scored 12% higher on average than those with higher baselines.</p>
+                        <p>This suggests that starting from a calmer state provides a performance advantage.</p>
+                    </div>
+                </div>
+                
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <div class="insight-icon green">
+                            <i class="fas fa-genderless"></i>
+                        </div>
+                        <h3 class="insight-title">Optimal In-Test Response</h3>
+                    </div>
+                    <div class="insight-content">
+                        <p>A <span class="highlight">40-60% increase</span> in stress during exams correlates with peak performance.</p>
+                        <p>Students showing increases beyond 80% had a 15% performance drop on difficult questions.</p>
+                    </div>
+                </div>
+                
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <div class="insight-icon purple">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3 class="insight-title">Recovery Predicts Resilience</h3>
+                    </div>
+                    <div class="insight-content">
+                        <p>Students who returned to baseline within <span class="warning">30 minutes post-test</span> improved scores by 8% in subsequent exams.</p>
+                        <p>Slow recovery (>60 minutes) correlated with declining performance across exams.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Stress & Performance Analytics</h3>
+                    <p>Understanding how physiological responses impact academic achievement across exam periods.</p>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Research Areas</h3>
+                    <ul>
+                        <li><a href="#">Period Analysis</a></li>
+                        <li><a href="#">Stress Physiology</a></li>
+                        <li><a href="#">Performance Prediction</a></li>
+                        <li><a href="#">Recovery Patterns</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Data Resources</h3>
+                    <ul>
+                        <li><a href="#">Research Papers</a></li>
+                        <li><a href="#">Dataset Access</a></li>
+                        <li><a href="#">Visualization Tools</a></li>
+                        <li><a href="#">Analysis Methods</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Connect</h3>
+                    <ul>
+                        <li><a href="#"><i class="fab fa-github"></i> GitHub</a></li>
+                        <li><a href="#"><i class="fab fa-twitter"></i> Twitter</a></li>
+                        <li><a href="#"><i class="fab fa-linkedin"></i> LinkedIn</a></li>
+                        <li><a href="#"><i class="fas fa-envelope"></i> Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2023 Academic Stress Analytics | Exam Period Performance Study</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Render all charts
+            renderPeriodComparisonChart();
+            renderPerformanceChart();
+            renderPreTestChart();
+            renderInTestChart();
+            renderPostTestChart();
+            renderTimelineChart();
+            
+            // Add event listeners
+            document.getElementById('student-select').addEventListener('change', updateCharts);
+            document.getElementById('exam-select').addEventListener('change', updateCharts);
+            document.getElementById('signal-select').addEventListener('change', updateCharts);
+        });
+        
+        // Generate period data
+        function generatePeriodData() {
+            return {
+                preTest: {
+                    hr: 72 + Math.random() * 5,
+                    eda: 2.5 + Math.random() * 0.8,
+                    temp: 36.4 + Math.random() * 0.3,
+                    bvp: 0.45 + Math.random() * 0.1,
+                    grade: 78 + Math.random() * 5
+                },
+                inTest: {
+                    hr: 88 + Math.random() * 10,
+                    eda: 5.5 + Math.random() * 1.5,
+                    temp: 35.8 + Math.random() * 0.4,
+                    bvp: 0.32 + Math.random() * 0.08,
+                    grade: 84 + Math.random() * 6
+                },
+                postTest: {
+                    hr: 75 + Math.random() * 6,
+                    eda: 3.0 + Math.random() * 1.0,
+                    temp: 36.2 + Math.random() * 0.3,
+                    bvp: 0.42 + Math.random() * 0.09,
+                    grade: 82 + Math.random() * 4
+                }
+            };
+        }
+        
+        // Render period comparison chart
+        function renderPeriodComparisonChart() {
+            const container = d3.select('#period-chart');
+            container.html('');
+            
+            const width = container.node().clientWidth;
+            const height = container.node().clientHeight;
+            const margin = { top: 30, right: 30, bottom: 60, left: 60 };
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+            
+            // Create SVG
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+            
+            // Get selected signal
+            const signal = document.getElementById('signal-select').value;
+            const signalLabels = {
+                hr: 'Heart Rate (bpm)',
+                eda: 'EDA (μS)',
+                temp: 'Temperature (°C)',
+                bvp: 'BVP (amplitude)'
+            };
+            
+            // Generate data
+            const data = generatePeriodData();
+            const periods = [
+                { label: 'Pre-Test', value: data.preTest[signal], color: '#6a89cc' },
+                { label: 'In-Test', value: data.inTest[signal], color: '#f8c291' },
+                { label: 'Post-Test', value: data.postTest[signal], color: '#82ccdd' }
+            ];
+            
+            // Scales
+            const xScale = d3.scaleBand()
+                .domain(periods.map(d => d.label))
+                .range([0, innerWidth])
+                .padding(0.3);
+            
+            const yScale = d3.scaleLinear()
+                .domain([0, d3.max(periods, d => d.value) * 1.2])
+                .range([innerHeight, 0]);
+            
+            // Draw bars
+            svg.selectAll('.bar')
+                .data(periods)
+                .enter()
+                .append('rect')
+                .attr('class', 'bar')
+                .attr('x', d => xScale(d.label))
+                .attr('y', d => yScale(d.value))
+                .attr('width', xScale.bandwidth())
+                .attr('height', d => innerHeight - yScale(d.value))
+                .attr('fill', d => d.color)
+                .attr('rx', 4)
+                .attr('ry', 4);
+            
+            // Add values on bars
+            svg.selectAll('.bar-value')
+                .data(periods)
+                .enter()
+                .append('text')
+                .attr('class', 'bar-value')
+                .attr('x', d => xScale(d.label) + xScale.bandwidth() / 2)
+                .attr('y', d => yScale(d.value) - 10)
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#343a40')
+                .attr('font-weight', '600')
+                .text(d => d.value.toFixed(2));
+            
+            // Add axes
+            const xAxis = d3.axisBottom(xScale);
+            const yAxis = d3.axisLeft(yScale).ticks(5);
+            
+            svg.append('g')
+                .attr('transform', `translate(0,${innerHeight})`)
+                .call(xAxis);
+            
+            svg.append('g')
+                .call(yAxis);
+            
+            // Add axis labels
+            svg.append('text')
+                .attr('x', innerWidth / 2)
+                .attr('y', innerHeight + margin.bottom - 10)
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#6c757d')
+                .text('Exam Period');
+            
+            svg.append('text')
+                .attr('transform', 'rotate(-90)')
+                .attr('x', -innerHeight / 2)
+                .attr('y', -margin.left + 15)
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#6c757d')
+                .text(signalLabels[signal]);
+        }
+        
+        // Render performance chart
+        function renderPerformanceChart() {
+            const container = d3.select('#performance-chart');
+            container.html('');
+            
+            const width = container.node().clientWidth;
+            const height = container.node().clientHeight;
+            const margin = { top: 30, right: 30, bottom: 60, left: 60 };
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+            
+            // Create SVG
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+            
+            // Generate data
+            const data = [
+                { student: 'S1', preTest: 0.45, inTest: 0.72, postTest: 0.50, grade: 84 },
+                { student: 'S2', preTest: 0.52, inTest: 0.68, postTest: 0.55, grade: 88 },
+                { student: 'S3', preTest: 0.62, inTest: 0.85, postTest: 0.70, grade: 75 },
+                { student: 'S4', preTest: 0.58, inTest: 0.78, postTest: 0.65, grade: 79 },
+                { student: 'S5', preTest: 0.40, inTest: 0.60, postTest: 0.42, grade: 92 }
+            ];
+            
+            // Scales
+            const xScale = d3.scaleBand()
+                .domain(data.map(d => d.student))
+                .range([0, innerWidth])
+                .padding(0.3);
+            
+            const yScale = d3.scaleLinear()
+                .domain([0, 100])
+                .range([innerHeight, 0]);
+            
+            // Draw grades
+            svg.selectAll('.grade-bar')
+                .data(data)
+                .enter()
+                .append('rect')
+                .attr('class', 'grade-bar')
+                .attr('x', d => xScale(d.student))
+                .attr('y', d => yScale(d.grade))
+                .attr('width', xScale.bandwidth())
+                .attr('height', d => innerHeight - yScale(d.grade))
+                .attr('fill', '#9d4edd')
+                .attr('rx', 4)
+                .attr('ry', 4);
+            
+            // Add stress indicators
+            const indicatorSize = 8;
+            svg.selectAll('.pre-test-indicator')
+                .data(data)
+                .enter()
+                .append('circle')
+                .attr('class', 'pre-test-indicator')
+                .attr('cx', d => xScale(d.student) + xScale.bandwidth() * 0.25)
+                .attr('cy', d => yScale(d.grade) - 20)
+                .attr('r', indicatorSize)
+                .attr('fill', '#6a89cc');
+            
+            svg.selectAll('.in-test-indicator')
+                .data(data)
+                .enter()
+                .append('circle')
+                .attr('class', 'in-test-indicator')
+                .attr('cx', d => xScale(d.student) + xScale.bandwidth() * 0.5)
+                .attr('cy', d => yScale(d.grade) - 20)
+                .attr('r', indicatorSize)
+                .attr('fill', '#f8c291');
+            
+            svg.selectAll('.post-test-indicator')
+                .data(data)
+                .enter()
+                .append('circle')
+                .attr('class', 'post-test-indicator')
+                .attr('cx', d => xScale(d.student) + xScale.bandwidth() * 0.75)
+                .attr('cy', d => yScale(d.grade) - 20)
+                .attr('r', indicatorSize)
+                .attr('fill', '#82ccdd');
+            
+            // Add axes
+            const xAxis = d3.axisBottom(xScale);
+            const yAxis = d3.axisLeft(yScale).ticks(5);
+            
+            svg.append('g')
+                .attr('transform', `translate(0,${innerHeight})`)
+                .call(xAxis);
+            
+            svg.append('g')
+                .call(yAxis);
+            
+            // Add axis labels
+            svg.append('text')
+                .attr('x', innerWidth / 2)
+                .attr('y', innerHeight + margin.bottom - 10)
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#6c757d')
+                .text('Students');
+            
+            svg.append('text')
+                .attr('transform', 'rotate(-90)')
+                .attr('x', -innerHeight / 2)
+                .attr('y', -margin.left + 15)
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#6c757d')
+                .text('Grade (%)');
+            
+            // Add legend
+            const legend = svg.append('g')
+                .attr('transform', `translate(${innerWidth - 150}, 20)`);
+            
+            legend.append('rect')
+                .attr('x', 0)
+                .attr('y', 0)
+                .attr('width', 15)
+                .attr('height', 15)
+                .attr('fill', '#9d4edd')
+                .attr('rx', 3)
+                .attr('ry', 3);
+            
+            legend.append('text')
+                .attr('x', 25)
+                .attr('y', 12)
+                .attr('font-size', '12px')
+                .text('Exam Grade');
+            
+            legend.append('circle')
+                .attr('cx', 7)
+                .attr('cy', 35)
+                .attr('r', 6)
+                .attr('fill', '#6a89cc');
+            
+            legend.append('text')
+                .attr('x', 25)
+                .attr('y', 37)
+                .attr('font-size', '12px')
+                .text('Pre-Test Stress');
+            
+            legend.append('circle')
+                .attr('cx', 7)
+                .attr('cy', 55)
+                .attr('r', 6)
+                .attr('fill', '#f8c291');
+            
+            legend.append('text')
+                .attr('x', 25)
+                .attr('y', 57)
+                .attr('font-size', '12px')
+                .text('In-Test Stress');
+            
+            legend.append('circle')
+                .attr('cx', 7)
+                .attr('cy', 75)
+                .attr('r', 6)
+                .attr('fill', '#82ccdd');
+            
+            legend.append('text')
+                .attr('x', 25)
+                .attr('y', 77)
+                .attr('font-size', '12px')
+                .text('Post-Test Stress');
+        }
+        
+        // Pre-test chart
+        function renderPreTestChart() {
+            renderMiniChart('pre-test-chart', 'Pre-Test', '#6a89cc');
+        }
+        
+        // In-test chart
+        function renderInTestChart() {
+            renderMiniChart('in-test-chart', 'In-Test', '#f8c291');
+        }
+        
+        // Post-test chart
+        function renderPostTestChart() {
+            renderMiniChart('post-test-chart', 'Post-Test', '#82ccdd');
+        }
+        
+        // Mini chart renderer
+        function renderMiniChart(containerId, period, color) {
+            const container = d3.select(`#${containerId}`);
+            container.html('');
+            
+            const width = container.node().clientWidth;
+            const height = container.node().clientHeight;
+            const margin = { top: 20, right: 20, bottom: 40, left: 40 };
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+            
+            // Create SVG
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+            
+            // Generate data
+            const data = [];
+            for (let i = 0; i < 20; i++) {
+                let value = 40 + Math.random() * 30;
+                if (period === 'In-Test') value += 20;
+                if (period === 'Post-Test') value = 50 + Math.random() * 20;
+                data.push(value);
+            }
+            
+            // Scales
+            const xScale = d3.scaleLinear()
+                .domain([0, data.length - 1])
+                .range([0, innerWidth]);
+            
+            const yScale = d3.scaleLinear()
+                .domain([0, 100])
+                .range([innerHeight, 0]);
+            
+            // Line generator
+            const line = d3.line()
+                .x((d, i) => xScale(i))
+                .y(d => yScale(d))
+                .curve(d3.curveMonotoneX);
+            
+            // Draw line
+            svg.append('path')
+                .datum(data)
+                .attr('fill', 'none')
+                .attr('stroke', color)
+                .attr('stroke-width', 2)
+                .attr('d', line);
+            
+            // Draw area
+            svg.append('path')
+                .datum(data)
+                .attr('fill', `${color}30`)
+                .attr('stroke', 'none')
+                .attr('d', d3.area()
+                    .x((d, i) => xScale(i))
+                    .y0(innerHeight)
+                    .y1(d => yScale(d))
+                    .curve(d3.curveMonotoneX)
+                );
+            
+            // Add period label
+            svg.append('text')
+                .attr('x', innerWidth / 2)
+                .attr('y', 20)
+                .attr('text-anchor', 'middle')
+                .attr('font-weight', '600')
+                .attr('fill', color)
+                .text(`${period} Stress Index`);
+        }
+        
+        // Timeline chart
+        function renderTimelineChart() {
+            const container = d3.select('#timeline-chart');
+            container.html('');
+            
+            const width = container.node().clientWidth;
+            const height = container.node().clientHeight;
+            const margin = { top: 30, right: 30, bottom: 60, left: 60 };
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+            
+            // Create SVG
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+            
+            // Generate data
+            const data = [];
+            for (let i = 0; i < 120; i++) {
+                let value = 40 + Math.random() * 20;
+                // Simulate period changes
+                if (i > 20 && i < 90) value += 30; // In-test
+                if (i > 90) value = 50 + Math.random() * 15; // Post-test
+                data.push({ time: i, value: value });
+            }
+            
+            // Period boundaries
+            const periods = [
+                { start: 0, end: 20, label: "Pre-Test", color: "#6a89cc30" },
+                { start: 20, end: 90, label: "In-Test", color: "#f8c29130" },
+                { start: 90, end: 120, label: "Post-Test", color: "#82ccdd30" }
+            ];
+            
+            // Draw period backgrounds
+            periods.forEach(period => {
+                svg.append('rect')
+                    .attr('x', period.start / 120 * innerWidth)
+                    .attr('y', 0)
+                    .attr('width', (period.end - period.start) / 120 * innerWidth)
+                    .attr('height', innerHeight)
+                    .attr('fill', period.color);
+                
+                svg.append('text')
+                    .attr('x', (period.start + (period.end - period.start) / 2) / 120 * innerWidth)
+                    .attr('y', innerHeight + 30)
+                    .attr('text-anchor', 'middle')
+                    .attr('fill', '#6c757d')
+                    .text(period.label);
+            });
+            
+            // Scales
+            const xScale = d3.scaleLinear()
+                .domain([0, 120])
+                .range([0, innerWidth]);
+            
+            const yScale = d3.scaleLinear()
+                .domain([0, 100])
+                .range([innerHeight, 0]);
+            
+            // Line generator
+            const line = d3.line()
+                .x(d => xScale(d.time))
+                .y(d => yScale(d.value))
+                .curve(d3.curveMonotoneX);
+            
+            // Draw line
+            svg.append('path')
+                .datum(data)
+                .attr('fill', 'none')
+                .attr('stroke', '#9d4edd')
+                .attr('stroke-width', 3)
+                .attr('d', line);
+            
+            // Draw area
+            svg.append('path')
+                .datum(data)
+                .attr('fill', '#9d4edd20')
+                .attr('stroke', 'none')
+                .attr('d', d3.area()
+                    .x(d => xScale(d.time))
+                    .y0(innerHeight)
+                    .y1(d => yScale(d.value))
+                    .curve(d3.curveMonotoneX)
+                );
+            
+            // Add axes
+            const xAxis = d3.axisBottom(xScale).ticks(6).tickFormat(d => `${d} min`);
+            const yAxis = d3.axisLeft(yScale).ticks(5);
+            
+            svg.append('g')
+                .attr('transform', `translate(0,${innerHeight})`)
+                .call(xAxis);
+            
+            svg.append('g')
+                .call(yAxis);
+            
+            // Add axis labels
+            svg.append('text')
+                .attr('x', innerWidth / 2)
+                .attr('y', innerHeight + margin.bottom - 10)
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#6c757d')
+                .text('Time (minutes)');
+            
+            svg.append('text')
+                .attr('transform', 'rotate(-90)')
+                .attr('x', -innerHeight / 2)
+                .attr('y', -margin.left + 15)
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#6c757d')
+                .text('Stress Index');
+            
+            // Add period boundaries
+            svg.append('line')
+                .attr('x1', xScale(20))
+                .attr('x2', xScale(20))
+                .attr('y1', 0)
+                .attr('y2', innerHeight)
+                .attr('stroke', '#6a89cc')
+                .attr('stroke-width', 2)
+                .attr('stroke-dasharray', '4,2');
+            
+            svg.append('line')
+                .attr('x1', xScale(90))
+                .attr('x2', xScale(90))
+                .attr('y1', 0)
+                .attr('y2', innerHeight)
+                .attr('stroke', '#82ccdd')
+                .attr('stroke-width', 2)
+                .attr('stroke-dasharray', '4,2');
+        }
+        
+        // Update all charts
+        function updateCharts() {
+            renderPeriodComparisonChart();
+            renderPerformanceChart();
+            renderPreTestChart();
+            renderInTestChart();
+            renderPostTestChart();
+            renderTimelineChart();
+        }
+    </script>
+</body>
+</html>
