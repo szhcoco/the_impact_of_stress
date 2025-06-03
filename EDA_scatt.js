@@ -43,7 +43,12 @@ async function loadData() {
         eda_grades.push({
             student,
             avg_EDA: avg_eda,
-            avg_score: avg_score
+            avg_score: avg_score,
+            midterm_1: s_grade.midterm_1,
+            midterm_2: s_grade.midterm_2,
+            final: s_grade.final,
+            
+
 
         });
     }
@@ -118,9 +123,9 @@ async function renderScatterPlot() {
             let svg3 = d3.select('#final');
 
             d3.select('#student-name').text('Student '+d.student);
-            d3.select('label#midterm1').text('Midterm 1 Average Score: '+d.avg_score);
-            d3.select('label#midterm2').text('Midterm 2 Average Score: '+d.avg_score);
-            d3.select('label#finalexam').text('Final Average Score: '+d.avg_score);
+            d3.select('label#midterm1').text('Midterm 1 Score: '+d.midterm_1);
+            d3.select('label#midterm2').text('Midterm 2 Score: '+d.midterm_2);
+            d3.select('label#finalexam').text('Final Score: '+d.final);
 
             EDA.createPlot(svg1, 'dataset/S'+d.student+'_processed/Midterm 1/EDA.csv');
             EDA.createPlot(svg2, 'dataset/S'+d.student+'_processed/Midterm 2/EDA.csv');
@@ -161,7 +166,7 @@ async function renderScatterPlot() {
         .attr("x", -(usableArea.top + usableArea.bottom) / 2)
         .attr("y", -30)
         .attr("fill", "black")
-        .text("Average Grade");
+        .text("Weighted Average Grade");
 }
 
 const data = loadData();
