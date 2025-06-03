@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import os
 
-# Load the dataset
 
 
 def process_data(file_path, test_duration):
@@ -48,6 +47,35 @@ def process_data(file_path, test_duration):
     df['period'] = period
     df.to_csv(file_path.replace('EDA', 'HR'), index=False)
 
+    # TEMP
+    df = pd.read_csv(file_path.replace('EDA', 'TEMP'))
+    df = df[(df['timestamp'] >= df_filtered['timestamp'].iloc[0]) & (df['timestamp'] <= df_filtered['timestamp'].iloc[-1])].reset_index(drop=True)
+    df['time_seconds'] = (df.index - 1200) / 4.0
+    period = []
+    for i in df['time_seconds']:
+        if i < 0:
+            period.append('pre-test')
+        elif i <= test_duration:
+            period.append('in-test')
+        else:
+            period.append('post-test')
+    df['period'] = period
+    df.to_csv(file_path.replace('EDA', 'TEMP'), index=False)
+
+    # ACC
+    df = pd.read_csv(file_path.replace('EDA', 'ACC'))
+    df = df[(df['timestamp'] >= df_filtered['timestamp'].iloc[0]) & (df['timestamp'] <= df_filtered['timestamp'].iloc[-1])].reset_index(drop=True)
+    df['time_seconds'] = (df.index - 9600) / 32.0
+    period = []
+    for i in df['time_seconds']:
+        if i < 0:
+            period.append('pre-test')
+        elif i <= test_duration:
+            period.append('in-test')
+        else:
+            period.append('post-test')
+    df['period'] = period
+    df.to_csv(file_path.replace('EDA', 'ACC'), index=False)
 
 
 base_dir = 'dataset'
