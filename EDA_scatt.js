@@ -118,6 +118,9 @@ async function renderScatterPlot() {
             let svg3 = d3.select('#final');
 
             d3.select('#student-name').text('Student '+d.student);
+            d3.select('label#midterm1').text('Midterm 1 Average Score: '+d.avg_score);
+            d3.select('label#midterm2').text('Midterm 2 Average Score: '+d.avg_score);
+            d3.select('label#finalexam').text('Final Average Score: '+d.avg_score);
 
             EDA.createPlot(svg1, 'dataset/S'+d.student+'_processed/Midterm 1/EDA.csv');
             EDA.createPlot(svg2, 'dataset/S'+d.student+'_processed/Midterm 2/EDA.csv');
