@@ -997,7 +997,7 @@
                 .range([0, innerWidth]);
             
             const yScale = d3.scaleLinear()
-                .domain(d3.extent(dataHandler, d => d.grade))
+                .domain([80, 190])
                 .range([innerHeight, 0]);
             
             // Draw points
