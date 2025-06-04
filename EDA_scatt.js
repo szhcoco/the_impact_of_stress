@@ -70,15 +70,7 @@ async function renderScatterPlot() {
         .attr('width', width) // <- Add this
         .attr('height', height);
     
-    // const svg = d3
-    //     .select('#chart')
-    //     .append('svg')
-    //     .attr('viewBox', `0 0 ${width} ${height}`)
-    //     .attr('preserveAspectRatio', 'xMidYMid meet')
-    //     .style('width', '100%')
-    //     .style('height', '100%');
 
-    // x axis = avg_eda
     const xScale = d3
         .scaleLinear()
         .domain(d3.extent(data, (d) => +d.avg_EDA))
@@ -90,7 +82,6 @@ async function renderScatterPlot() {
     const margin = { top: 10, right: 10, bottom: 50, left: 40 };
 
     const usableArea = {
-        // start at y = 10 (y increase from top to bottom)
         top: margin.top,
         right: width - margin.right,
         bottom: height - margin.bottom,
@@ -173,5 +164,3 @@ const data = loadData();
 console.log(data);
 
 renderScatterPlot();
-
-// dataset/S1_processed/Midterm 1/EDA.csv
