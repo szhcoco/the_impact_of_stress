@@ -4,7 +4,9 @@ let svg1 = d3.select('#mid1');
 let svg2 = d3.select('#mid2');
 let svg3 = d3.select('#final');
 
-export function createPlot(svg, Path) {
+const dataSave = {};
+
+export function createPlot(svg, student, exam) {
     svg.selectAll("*").remove();
     let margin = { top: 20, right: 60, bottom: 50, left: 60 };
     let boundingRect = svg.node().getBoundingClientRect();
@@ -21,7 +23,7 @@ export function createPlot(svg, Path) {
 
     let line = d3.line().x(d => xScale(d.time_seconds)).y(d => yScale(d.EDA));
 
-    draw(Path, xScale, yScale, xAxisGroup, yAxisGroup, g, line, width, height, margin);
+    draw(student, exam, xScale, yScale, xAxisGroup, yAxisGroup, g, line, width, height, margin);
 }
 
 const tooltip = d3.select(".tooltip");
@@ -119,16 +121,19 @@ const legendData = [
       .text(d.label);
   });
 }
-function handleData(Data, xScale, yScale, xAxisGroup, yAxisGroup, g, line, width, height, margin) {
-    // Create a lookup for HR by timestamp
+
+function handleData(mainData, allStudentData, xScale, yScale, xAxisGroup, yAxisGroup, g, line, width, height, margin) {
+    // Create a lookup for eda by timestamp
     //get start timestamp to change x-axis later
-    const startTimestamp = Data[0].timestamp; 
-    const parseTime = d3.timeParse("%H:%M:%S");
-    const formatTime = d3.timeFormat("%H:%M"); // format for axis ticks 
-    const startTime = parseTime(startTimestamp);
+    // const startTimestamp = mainData[0].timestamp; 
+    // const parseTime = d3.timeParse("%H:%M:%S");
+    // const formatTime = d3.timeFormat("%H:%M"); // format for axis ticks 
+    // const startTime = parseTime(startTimestamp);
     // Define scales
-    xScale.domain(d3.extent(Data, d => +d.time_seconds));
-    yScale.domain([0, d3.max(Data, d => +d.EDA)]).nice();
+
+    console.log(mainData);
+    xScale.domain(d3.extent(mainData, d => +d.time_seconds));
+    yScale.domain([0, d3.max(mainData, d => +d.EDA)]).nice();
 
     // Draw axes
     // xAxisGroup.call(
@@ -147,7 +152,7 @@ function handleData(Data, xScale, yScale, xAxisGroup, yAxisGroup, g, line, width
 
     // EDA line
     g.append("path")
-      .datum(Data)
+      .datum(mainData)
       .attr("class", "line-path")
       .attr("fill", "none")
       .attr("stroke", "steelblue")
@@ -171,10 +176,10 @@ function handleData(Data, xScale, yScale, xAxisGroup, yAxisGroup, g, line, width
         .text("EDA");
 
 
-    // Tooltip points for HR
+    // Tooltip points for eda
     setupTooltip(
       g.selectAll(".line-dot")
-        .data(Data)
+        .data(mainData)
         .enter().append("circle")
           .attr("class", "line-dot")
           .attr("cx", d => xScale(d.time_seconds))
@@ -187,17 +192,73 @@ function handleData(Data, xScale, yScale, xAxisGroup, yAxisGroup, g, line, width
 
     //addPeriodLine(g, Data);
     //addLegends(g, colors);
+
+
+
+    // for area data:
+
+    const timePoints = mainData.map(d => +d.time_seconds);
+
+    const areaData = timePoints.map(time => {
+      const edaValues = allStudentData.map(studentData => {
+        const matchTimeData = studentData.find(d => +d.time_seconds === time);
+        return matchTimeData;
+      });
+
+      return {
+        time_seconds: time,
+        min: d3.min(edaValues),
+        max:d3.max(edaValues),
+      }
+
+    });
+
+    const area = d3.area().x(d => xScale(d.time_seconds)).y0(d => yScale(d.min)).y1(d => yScale(d.max));
+
+    g.append('path')
+      .datum(areaData)
+      .attr('fill', 'grey')
+      .attr('stroke', 'none')
+      .attr('opacity', 0.4)
+      .attr('d', area);
 }
 
-function draw(datasetBase, xScale, yScale, xAxisGroup, yAxisGroup, g, line, width, height, margin) {
-    //path for EDA and HR
-  const dataPath = datasetBase;
-    //load the dataset
-  Promise.all([
-    d3.csv(dataPath)
-  ]).then(([Data]) => {
-    handleData(Data, xScale, yScale, xAxisGroup, yAxisGroup, g, line, width, height, margin);
-  });
+function draw(student, exam, xScale, yScale, xAxisGroup, yAxisGroup, g, line, width, height, margin) {
+
+
+  const allStudents = ['S1', 'S2','S3','S4','S5','S6','S7','S8', 'S9', 'S10'];
+
+  if (dataSave[exam]) {
+    const mainData = dataSave[exam][student];
+    const allStudentData = allStudents.map(s => dataSave[exam][s]);
+    handleData(mainData, allStudentData, xScale, yScale, xAxisGroup, yAxisGroup, g, line, width, height, margin);
+  }
+  else {
+    const allPaths = allStudents.map(s => `dataset/${s}_processed/${exam}/EDA.csv`);
+
+    Promise.all(allPaths.map(path => d3.csv(path))).then(allDataCSV => {
+      const save = {};
+      allStudents.forEach((s, i) => {
+        save[s] = allDataCSV[i];
+      });
+
+      dataSave[exam] = save;
+
+      const mainData = save[student];
+      const allStudentData = allStudents.map(s => save[s]);
+      handleData(mainData, allStudentData, xScale, yScale, xAxisGroup, yAxisGroup, g, line, width, height, margin);
+    });
+  }
+
+
+  //   //path for EDA and HR
+  // const dataPath = datasetBase;
+  //   //load the dataset
+  // Promise.all([
+  //   d3.csv(dataPath)
+  // ]).then(([Data]) => {
+  //   handleData(Data, xScale, yScale, xAxisGroup, yAxisGroup, g, line, width, height, margin);
+  // });
 }
 
 

@@ -127,9 +127,9 @@ async function renderScatterPlot() {
             d3.select('label#midterm2').text('Midterm 2 Score: '+d.midterm_2);
             d3.select('label#finalexam').text('Final Score: '+d.final);
 
-            EDA.createPlot(svg1, 'dataset/S'+d.student+'_processed/Midterm 1/EDA.csv');
-            EDA.createPlot(svg2, 'dataset/S'+d.student+'_processed/Midterm 2/EDA.csv');
-            EDA.createPlot(svg3, 'dataset/S'+d.student+'_processed/Final/EDA.csv');
+            EDA.createPlot(svg1, 'S'+d.student, 'Midterm 1');
+            EDA.createPlot(svg2, 'S'+d.student, 'Midterm 2');
+            EDA.createPlot(svg3, 'S'+d.student, 'Final');
         });
 
     const gridlines = svg
