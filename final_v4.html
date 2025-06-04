@@ -601,23 +601,33 @@
             
             // Parse CSV text into structured data
             parseCSV(csvText) {
-                const rows = csvText.split('\n').slice(1); // Skip header row
+                const lines = csvText.trim().split('\n');
+                if (lines.length < 2) return [];
+
+                const headers = lines[0].split(',').map(h => h.trim());
+                const signal = headers[0]; // First column is the signal type
                 const data = [];
-                
-                for (const row of rows) {
-                    if (!row.trim()) continue;
-                    
-                    const [signal, timestamp, relativeSeconds, period] = row.split(',');
-                    
-                    data.push({
-                        signal: signal.trim(),
-                        timestamp: timestamp.trim(),
-                        relativeSeconds: parseFloat(relativeSeconds),
-                        period: period.trim(),
-                        value: parseFloat(signal) // Assuming signal value is the first column
-                    });
+
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+
+                    const values = line.split(',');
+                    const entry = {};
+
+                    for (let j = 0; j < headers.length; j++) {
+                        const key = headers[j];
+                        const value = values[j] ? values[j].trim() : '';
+                        entry[key] = value;
+                    }
+
+                    // Add parsed numeric fields if present
+                    if (entry[signal] !== undefined) entry.value = parseFloat(entry[signal]);
+                    if (entry.time_seconds !== undefined) entry.time_seconds = parseFloat(entry.time_seconds);
+
+                    data.push(entry);
                 }
-                
+
                 return data;
             }
             
@@ -682,7 +692,7 @@
                     data.push({
                         signal: signal,
                         timestamp: new Date(startTime.getTime() + i * 1000).toISOString(),
-                        relativeSeconds: i,
+                        time_seconds: i,
                         period: period,
                         value: value
                     });
@@ -814,7 +824,7 @@
             
             // Scales
             const xScale = d3.scaleLinear()
-                .domain([0, d3.max(data, d => d.relativeSeconds) || 100])
+                .domain([0, d3.max(data, d => d.time_seconds) || 100])
                 .range([0, innerWidth]);
             
             const yMin = d3.min(data, d => d.value) * 0.95;
@@ -853,7 +863,7 @@
             
             // Line generator
             const line = d3.line()
-                .x(d => xScale(d.relativeSeconds))
+                .x(d => xScale(d.time_seconds))
                 .y(d => yScale(d.value))
                 .curve(d3.curveMonotoneX);
             
@@ -871,7 +881,7 @@
                 .enter()
                 .append('circle')
                 .attr('class', 'dot')
-                .attr('cx', d => xScale(d.relativeSeconds))
+                .attr('cx', d => xScale(d.time_seconds))
                 .attr('cy', d => yScale(d.value))
                 .attr('r', 3)
                 .attr('fill', d => colorScale(d.period))
@@ -886,7 +896,7 @@
                     tooltip.html(`
                         <div class="tooltip-title">${d.period.replace('-', ' ').toUpperCase()}</div>
                         <div class="tooltip-content">
-                            <p>Time: ${Math.floor(d.relativeSeconds/60)}:${(d.relativeSeconds%60).toString().padStart(2, '0')}</p>
+                            <p>Time: ${Math.floor(d.time_seconds/60)}:${(d.time_seconds%60).toString().padStart(2, '0')}</p>
                             <p>${signal}: ${d.value.toFixed(2)}</p>
                         </div>
                     `)
