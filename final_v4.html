@@ -824,7 +824,7 @@
             
             // Scales
             const xScale = d3.scaleLinear()
-                .domain([0, d3.max(data, d => d.time_seconds) || 100])
+                .domain([d3.min(data, d => d.time_seconds) - 20, d3.max(data, d => d.time_seconds) + 20])
                 .range([0, innerWidth]);
             
             const yMin = d3.min(data, d => d.value) * 0.95;
