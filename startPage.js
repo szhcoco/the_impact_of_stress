@@ -39,5 +39,5 @@ function addInteractionArea(x, y, textx, texty, fill, web, text) {
 
 addInteractionArea(390, 50, 380, 50, '#7cbdf7', 'EDA_scatt.html', 'EDA');
 addInteractionArea(430, 170, 420, 170, '#f14b4e', 'HR_scatt.html', 'HR');
-addInteractionArea(500, 400, 490, 400, '#ff9631', 'temp.html','temp');
+addInteractionArea(500, 400, 490, 400, '#ff9631', 'TEMP_scatt.html','temp');
 addInteractionArea(290, 400, 280, 400, '#00d6a0', 'ACC.html', 'ACC');

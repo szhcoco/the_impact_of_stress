@@ -1,28 +1,38 @@
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
 
-const svg = d3.select("svg");
+let svg1 = d3.select('#mid1');
+let svg2 = d3.select('#mid2');
+let svg3 = d3.select('#final');
+
+export function createPlot(svg, Path) {
+    svg.selectAll("*").remove();
+    let margin = { top: 20, right: 60, bottom: 50, left: 60 };
+    let boundingRect = svg.node().getBoundingClientRect();
+    let width = boundingRect.width - margin.left - margin.right;
+    let height = boundingRect.height - margin.top - margin.bottom;
+    // let width = +svg.attr("width") - margin.left - margin.right;
+    // let height = +svg.attr("height") - margin.top - margin.bottom;
+    let g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+    let xScale = d3.scaleLinear().range([0, width]);
+    let yScale = d3.scaleLinear().range([height, 0]);
+
+    let xAxisGroup = g.append("g").attr("transform", `translate(0,${height})`);
+    let yAxisGroup = g.append("g");
+
+    let line = d3.line().x(d => xScale(d.time_seconds)).y(d => yScale(d.TEMP));
+
+    draw(Path, xScale, yScale, xAxisGroup, yAxisGroup, g, line, width, height, margin);
+}
+
 const tooltip = d3.select(".tooltip");
-const margin = { top: 20, right: 60, bottom: 50, left: 60 };
-const width = +svg.attr("width") - margin.left - margin.right;
-const height = +svg.attr("height") - margin.top - margin.bottom;
-const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
-
-let xScale = d3.scaleLinear().range([0, width]);
-let yScale = d3.scaleLinear().range([height, 0]);
-
-const xAxisGroup = g.append("g").attr("transform", `translate(0,${height})`);
-const yAxisGroup = g.append("g");
-
-const lineEDA = d3.line().x(d => xScale(d.time_seconds)).y(d => yScaleEDA(d.EDA));
-const lineHR = d3.line().x(d => xScale(d.time_seconds)).y(d => yScaleHR(d.HR));
 
 function setupTooltip(selection, field) {
   selection
     .on("mouseover", (event, d) => {
       tooltip.transition().duration(200).style("opacity", .9);
       tooltip.html(`${field}: ${d[field]}<br/>Time: ${d.time_seconds}s<br/>Timestamp: ${d.timestamp}<br/>Period: ${d.period}`)
-             .style("left", (event.pageX + 10) + "px")
-             .style("top", (event.pageY - 28) + "px");
+             .style("left", `${event.pageX + 10}px`)
+             .style("top", `${event.pageY - 28}px`);
     })
     .on("mouseout", () => {
       tooltip.transition().duration(500).style("opacity", 0);
@@ -30,16 +40,16 @@ function setupTooltip(selection, field) {
 }
 
 // Add vertical test period markers
-function addPeriodLine(g, edaData) {
+function addPeriodLine(g, TEMPData) {
     let endTest;
     let endTestText;
-    const startTest = edaData.find(d => d.timestamp === "09:00:00")?.time_seconds;
+    const startTest = TEMPData.find(d => d.timestamp === "09:00:00")?.time_seconds;
     if (exam !== "Final") {
-        endTest = edaData.find(d => d.timestamp === "10:30:00")?.time_seconds;
+        endTest = TEMPData.find(d => d.timestamp === "10:30:00")?.time_seconds;
         endTestText = "End Test (10:30)";
     }
     else {
-        endTest = edaData.find(d => d.timestamp === "12:00:00")?.time_seconds;
+        endTest = TEMPData.find(d => d.timestamp === "12:00:00")?.time_seconds;
         endTestText = "End Test (12:00)";
     }
 
@@ -81,7 +91,7 @@ function addPeriodLine(g, edaData) {
 function addLegends(g, legendColors) {
     // Legend data
 const legendData = [
-    { label: "EDA", color: "steelblue" },
+    { label: "TEMP", color: "steelblue" },
     { label: "Heart Rate", color: "darkorange" }
   ];
   
@@ -109,69 +119,41 @@ const legendData = [
       .text(d.label);
   });
 }
-function handleData(edaData, hrData) {
-    // Create a lookup for HR by timestamp
-    const hrMap = new Map();
-    hrData.forEach(d => hrMap.set(d.timestamp, +d.HR));
-
-    // Merge HR into EDA where timestamps match
-    edaData = edaData
-      .filter(d => hrMap.has(d.timestamp))
-      .map(d => ({
-        ...d,
-        EDA: +d.EDA,
-        time_seconds: +d.time_seconds,
-        HR: hrMap.get(d.timestamp)
-      }));
-
+function handlTEMPta(Data, xScale, yScale, xAxisGroup, yAxisGroup, g, line, width, height, margin) {
+    // Create a lookup for TEMP by timestamp
     //get start timestamp to change x-axis later
-    const startTimestamp = edaData[0].timestamp; 
+    const startTimestamp = Data[0].timestamp; 
     const parseTime = d3.timeParse("%H:%M:%S");
     const formatTime = d3.timeFormat("%H:%M"); // format for axis ticks 
     const startTime = parseTime(startTimestamp);
-
     // Define scales
-    xScale.domain(d3.extent(edaData, d => d.time_seconds));
-    yScaleEDA.domain([0, d3.max(edaData, d => d.EDA)]).nice();
-    yScaleHR.domain([0, d3.max(edaData, d => d.HR)]).nice();
+    xScale.domain(d3.extent(Data, d => +d.time_seconds));
+    yScale.domain([0, d3.max(Data, d => +d.TEMP)]).nice();
 
     // Draw axes
-    xAxisGroup.call(
-        d3.axisBottom(xScale)
-          .ticks(10)  // or adjust as needed
-          .tickFormat(d => {
-            const date = new Date(startTime.getTime() + d * 1000); // seconds to ms
-            return formatTime(date);  // e.g., "09:15"
-        })
-    );
-    yAxisEDAGroup.call(d3.axisLeft(yScaleEDA));
-    yAxisHRGroup.call(d3.axisRight(yScaleHR));
+    // xAxisGroup.call(
+    //     d3.axisBottom(xScale)
+    //       .ticks(10)  // or adjust as needed
+    //       .tickFormat(d => {
+    //         const date = new Date(startTime.getTime() + d * 1000); // seconds to ms
+    //         return formatTime(date);  // e.g., "09:15"
+    //     })
+    // );
+    xAxisGroup.call(d3.axisBottom(xScale));
+    yAxisGroup.call(d3.axisLeft(yScale));
 
     // Clear old elements
-    g.selectAll(".line-path, .dot, .hr-dot, .vline, .label").remove();
+    g.selectAll(".line-path, .line-dot, .vline, .label").remove();
 
-    const colors = [
-        { label: "EDA", color: "steelblue" },
-        { label: "Heart Rate", color: "darkorange" }
-    ];
-
-    // EDA line
+    // TEMP line
     g.append("path")
-      .datum(edaData)
+      .datum(Data)
       .attr("class", "line-path")
       .attr("fill", "none")
       .attr("stroke", "steelblue")
       .attr("stroke-width", 1.5)
-      .attr("d", lineEDA);
+      .attr("d", line);
 
-    // HR line
-    g.append("path")
-      .datum(edaData)
-      .attr("class", "line-path")
-      .attr("fill", "none")
-      .attr("stroke", "darkorange")
-      .attr("stroke-width", 1.5)
-      .attr("d", lineHR);
 
     //axis name
     g.append("text")
@@ -186,74 +168,34 @@ function handleData(edaData, hrData) {
         .attr("transform", "rotate(-90)")
         .attr("x", -height / 2)
         .attr("y", -margin.left + 15)
-        .text("EDA (μS)");
-    g.append("text")
-        .attr("class", "y-axis-label")
-        .attr("text-anchor", "middle")
-        .attr("transform", "rotate(-90)")
-        .attr("x", -height / 2)
-        .attr("y", width + margin.right - 15)
-        .text("Heart Rate");
+        .text("TEMP");
 
-    // Tooltip points for EDA
+
+    // Tooltip points for TEMP
     setupTooltip(
-      g.selectAll(".dot")
-        .data(edaData)
+      g.selectAll(".line-dot")
+        .data(Data)
         .enter().append("circle")
-          .attr("class", "dot")
+          .attr("class", "line-dot")
           .attr("cx", d => xScale(d.time_seconds))
-          .attr("cy", d => yScaleEDA(d.EDA))
+          .attr("cy", d => yScale(d.TEMP))
           .attr("r", 4)
           .attr("fill", "transparent")
           .attr("stroke", "transparent"),
-      "EDA"
+      "TEMP"
     );
 
-    // Tooltip points for HR
-    setupTooltip(
-      g.selectAll(".hr-dot")
-        .data(edaData)
-        .enter().append("circle")
-          .attr("class", "hr-dot")
-          .attr("cx", d => xScale(d.time_seconds))
-          .attr("cy", d => yScaleHR(d.HR))
-          .attr("r", 4)
-          .attr("fill", "transparent")
-          .attr("stroke", "transparent"),
-      "HR"
-    );
-
-    addPeriodLine(g, edaData);
-    addLegends(g, colors);
+    //addPeriodLine(g, Data);
+    //addLegends(g, colors);
 }
 
-function draw(datasetBase) {
-    //path for EDA and HR
-  const edaPath = datasetBase;
-  const hrPath = datasetBase.replace("EDA", "HR");
+function draw(datasetBase, xScale, yScale, xAxisGroup, yAxisGroup, g, line, width, height, margin) {
+    //path for TEMP and TEMP
+  const dataPath = datasetBase;
     //load the dataset
   Promise.all([
-    d3.csv(edaPath),
-    d3.csv(hrPath)
-  ]).then(([edaData, hrData]) => {
-    handleData(edaData, hrData);
+    d3.csv(dataPath)
+  ]).then(([Data]) => {
+    handlTEMPta(Data, xScale, yScale, xAxisGroup, yAxisGroup, g, line, width, height, margin);
   });
 }
-
-
-// Initial dataset
-let student = "S1";
-let exam = "Midterm 1";
-draw("Data/S1_processed/Midterm 1/EDA.csv");
-
-// Dropdown to change dataset
-document.getElementById("dataset-select").addEventListener("change", function () {
-    exam = this.value;
-    draw("Data/"+student+"_processed/"+exam+"/EDA.csv");
-});
-
-// Change student
-document.getElementById("student-select").addEventListener("change", function () {
-    student = this.value;
-    draw("Data/"+student+"_processed/"+exam+"/EDA.csv");
-});
