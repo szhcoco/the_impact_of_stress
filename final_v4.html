@@ -363,11 +363,6 @@
                     </div>
                     <div class="logo-text">Academic Stress Analytics</div>
                 </div>
-                <div class="controls">
-                    <button class="primary" id="load-data-btn">
-                        <i class="fas fa-database"></i> Load Dataset
-                    </button>
-                </div>
             </div>
         </div>
     </header>
@@ -409,7 +404,7 @@
                 </select>
             </div>
             
-            <button id="refresh-btn" class="primary">
+            <button id="load-data-btn" class="primary">
                 <i class="fas fa-sync-alt"></i> Update Visualizations
             </button>
         </div>
@@ -711,7 +706,7 @@
             // DOM elements
             const studentSelect = document.getElementById('student-select');
             const signalSelect = document.getElementById('signal-select');
-            const refreshBtn = document.getElementById('refresh-btn');
+            // const refreshBtn = document.getElementById('refresh-btn');
             const loadDataBtn = document.getElementById('load-data-btn');
             const loadingIndicator = document.getElementById('loading-indicator');
             const periodSelect = document.getElementById('period-select');
@@ -747,11 +742,11 @@
             });
             
             // Refresh button
-            refreshBtn.addEventListener('click', function() {
-                currentStudent = studentSelect.value;
-                currentSignal = signalSelect.value;
-                updateCharts(dataHandler, currentStudent, currentSignal);
-            });
+            // refreshBtn.addEventListener('click', function() {
+            //     currentStudent = studentSelect.value;
+            //     currentSignal = signalSelect.value;
+            //     updateCharts(dataHandler, currentStudent, currentSignal);
+            // });
             
             // Period select change
             periodSelect.addEventListener('change', function() {
@@ -794,9 +789,13 @@
             const container = d3.select(`#${containerId}`);
             container.html('');
             
-            // Add tooltip
-            const tooltip = container.append('div')
-                .attr('class', 'tooltip');
+            // Add tooltip (append to the chart container div, not SVG)
+            let tooltip = container.select('.tooltip');
+            if (tooltip.empty()) {
+                tooltip = d3.select(container.node())
+                    .append('div')
+                    .attr('class', 'tooltip');
+            }
             
             const width = container.node().clientWidth;
             const height = container.node().clientHeight;
@@ -888,9 +887,10 @@
                 .attr('stroke', '#fff')
                 .attr('stroke-width', 1)
                 .on('mouseover', function(event, d) {
-                    // Position tooltip
-                    const xPos = event.pageX;
-                    const yPos = event.pageY;
+                    // Position tooltip relative to the container
+                    const containerRect = d3.select(this.parentNode.parentNode.parentNode).node().getBoundingClientRect();
+                    const xPos = event.clientX - containerRect.left;
+                    const yPos = event.clientY - containerRect.top;
                     
                     // Update tooltip content
                     tooltip.html(`
