@@ -1,17 +1,13 @@
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
 
-let svg1 = d3.select('#mid1');
-let svg2 = d3.select('#mid2');
-let svg3 = d3.select('#final');
 
-export function createPlot(svg, Path) {
+export function createPlot(svg, student, exam) {
     svg.selectAll("*").remove();
     let margin = { top: 20, right: 60, bottom: 50, left: 60 };
     let boundingRect = svg.node().getBoundingClientRect();
     let width = boundingRect.width - margin.left - margin.right;
-    let height = boundingRect.height - margin.top - margin.bottom;
-    // let width = +svg.attr("width") - margin.left - margin.right;
-    // let height = +svg.attr("height") - margin.top - margin.bottom;
+    let height = 200 - margin.top - margin.bottom;
+
     let g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
     let xScale = d3.scaleLinear().range([0, width]);
     let yScale = d3.scaleLinear().range([height, 0]);
@@ -19,9 +15,7 @@ export function createPlot(svg, Path) {
     let xAxisGroup = g.append("g").attr("transform", `translate(0,${height})`);
     let yAxisGroup = g.append("g");
 
-    let line = d3.line().x(d => xScale(d.time_seconds)).y(d => yScale(d.HR));
-
-    draw(Path, xScale, yScale, xAxisGroup, yAxisGroup, g, line, width, height, margin);
+    draw(student, exam, xScale, yScale, xAxisGroup, yAxisGroup, g, width, height, margin);
 }
 
 const tooltip = d3.select(".tooltip");
@@ -39,163 +33,112 @@ function setupTooltip(selection, field) {
     });
 }
 
-// Add vertical test period markers
-function addPeriodLine(g, HRData) {
-    let endTest;
-    let endTestText;
-    const startTest = HRData.find(d => d.timestamp === "09:00:00")?.time_seconds;
-    if (exam !== "Final") {
-        endTest = HRData.find(d => d.timestamp === "10:30:00")?.time_seconds;
-        endTestText = "End Test (10:30)";
-    }
-    else {
-        endTest = HRData.find(d => d.timestamp === "12:00:00")?.time_seconds;
-        endTestText = "End Test (12:00)";
-    }
 
-    if (startTest !== undefined) {
-      g.append("line")
-        .attr("class", "vline")
-        .attr("x1", xScale(startTest))
-        .attr("x2", xScale(startTest))
-        .attr("y1", 0)
-        .attr("y2", height)
-        .attr("stroke", "red")
-        .attr("stroke-dasharray", "4");
-      g.append("text")
-        .attr("class", "label")
-        .attr("x", xScale(startTest) + 5)
-        .attr("y", 15)
-        .text("Start Test (9:00)")
-        .attr("fill", "red");
-    }
+function draw(student, exam, xScale, yScale, xAxisGroup, yAxisGroup, g, width, height, margin) {
 
-    if (endTest !== undefined) {
-      g.append("line")
-        .attr("class", "vline")
-        .attr("x1", xScale(endTest))
-        .attr("x2", xScale(endTest))
-        .attr("y1", 0)
-        .attr("y2", height)
-        .attr("stroke", "red")
-        .attr("stroke-dasharray", "4");
-      g.append("text")
-        .attr("class", "label")
-        .attr("x", xScale(endTest) + 5)
-        .attr("y", 15)
-        .text(endTestText)
-        .attr("fill", "red");
-    }
-}
-
-function addLegends(g, legendColors) {
-    // Legend data
-const legendData = [
-    { label: "HR", color: "steelblue" },
-    { label: "Heart Rate", color: "darkorange" }
-  ];
-  
-  // Location of legends
-  const legend = g.append("g")
-    .attr("class", "legend")
-    .attr("transform", `translate(${margin.left}, ${margin.top})`);
-  
-  legendColors.forEach((d, i) => {
-    const legendRow = legend.append("g")
-      .attr("transform", `translate(0, ${i * 20})`);
-  
-    // Colored square
-    legendRow.append("rect")
-      .attr("width", 12)
-      .attr("height", 12)
-      .attr("fill", d.color);
-  
-    // Label
-    legendRow.append("text")
-      .attr("x", 18)
-      .attr("y", 10)
-      .attr("font-size", "12px")
-      .attr("fill", "black")
-      .text(d.label);
-  });
-}
-function handlHRta(Data, xScale, yScale, xAxisGroup, yAxisGroup, g, line, width, height, margin) {
-    // Create a lookup for HR by timestamp
-    //get start timestamp to change x-axis later
-    const startTimestamp = Data[0].timestamp; 
-    const parseTime = d3.timeParse("%H:%M:%S");
-    const formatTime = d3.timeFormat("%H:%M"); // format for axis ticks 
-    const startTime = parseTime(startTimestamp);
-    // Define scales
-    xScale.domain(d3.extent(Data, d => +d.time_seconds));
-    yScale.domain([0, d3.max(Data, d => +d.HR)]).nice();
-
-    // Draw axes
-    // xAxisGroup.call(
-    //     d3.axisBottom(xScale)
-    //       .ticks(10)  // or adjust as needed
-    //       .tickFormat(d => {
-    //         const date = new Date(startTime.getTime() + d * 1000); // seconds to ms
-    //         return formatTime(date);  // e.g., "09:15"
-    //     })
-    // );
-    xAxisGroup.call(d3.axisBottom(xScale));
-    yAxisGroup.call(d3.axisLeft(yScale));
+    
 
     // Clear old elements
     g.selectAll(".line-path, .line-dot, .vline, .label").remove();
 
-    // HR line
-    g.append("path")
-      .datum(Data)
-      .attr("class", "line-path")
-      .attr("fill", "none")
-      .attr("stroke", "steelblue")
-      .attr("stroke-width", 1.5)
-      .attr("d", line);
+    // Area
+    Promise.all([
+        d3.csv(`HR_min_max_${exam}.csv`, d3.autoType),
+        d3.csv(`dataset/${student}_processed/${exam}/HR.csv`, d3.autoType)
+        ])
+        .then(([areaData, personData]) => {
+          xScale.domain(d3.extent(personData, d => +d.time_seconds));
+          yScale.domain([0, d3.max(personData, d => +d.HR)]).nice();
 
 
-    //axis name
-    g.append("text")
-        .attr("class", "x-axis-label")
-        .attr("text-anchor", "middle")
-        .attr("x", width / 2)
-        .attr("y", height + margin.bottom - 10)
-        .text("Time");
-    g.append("text")
-        .attr("class", "y-axis-label")
-        .attr("text-anchor", "middle")
-        .attr("transform", "rotate(-90)")
-        .attr("x", -height / 2)
-        .attr("y", -margin.left + 15)
-        .text("HR");
+          xAxisGroup.call(d3.axisBottom(xScale));
+          yAxisGroup.call(d3.axisLeft(yScale).ticks(8));
 
+        // Downsample
+        const N = 200;
+        const downsampledData = areaData.filter((d, i) => i % N === 0);
+    
+        // SCALES
+        const x = d3.scaleLinear()
+            .domain(d3.extent(downsampledData, d => d.time_seconds))
+            .range([0, width]);
+        const y = d3.scaleLinear()
+            .domain([0, d3.max(downsampledData, d => d.HR_max, d3.max(personData, d => d.HR))]).nice()
+            .range([height, 0]);
+    
+        // AREA
+        const area = d3.area()
+            .curve(d3.curveMonotoneX)
+            .x(d => x(d.time_seconds))
+            .y0(d => y(d.HR_min))
+            .y1(d => y(d.HR_max));
+    
+        g.append("path")
+            .datum(downsampledData)
+            .attr("class", "area")
+            .attr("d", area)
+            .attr('fill', 'grey')
+            .attr('opacity', 0.4);
+    
+        // AXES
+        g.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x));
+        // g.append("g")
+        //     .attr("transform", `translate(${margin.left},${margin.top})`)
+        //     .call(d3.axisLeft(y));
 
-    // Tooltip points for HR
-    setupTooltip(
-      g.selectAll(".line-dot")
-        .data(Data)
-        .enter().append("circle")
-          .attr("class", "line-dot")
-          .attr("cx", d => xScale(d.time_seconds))
-          .attr("cy", d => yScale(d.HR))
-          .attr("r", 4)
-          .attr("fill", "transparent")
-          .attr("stroke", "transparent"),
-      "HR"
-    );
+        // add labels
+        g.append("text")
+            .attr("class", "x-axis-label")
+            .attr("text-anchor", "middle")
+            .attr("x", width / 2)
+            .attr("y", height + margin.bottom - 10) 
+            .style('font-size', '12px')
+            .text("Time (seconds)");
 
-    //addPeriodLine(g, Data);
-    //addLegends(g, colors);
-}
+        g.append("text")
+            .attr("class", "y-axis-label")
+            .attr("text-anchor", "middle")
+            .attr("transform", `translate(${-margin.left + 20},${height / 2}) rotate(-90)`)
+            .text("HR")
+            .style('font-size', '12px');
+    
+        // --- PERSON'S HR LINE ---
+        const personN = N;
+        const downsampledPerson = personData.filter((d, i) => i % personN === 0);
+    
+        const personLine = d3.line()
+            .curve(d3.curveMonotoneX)
+            .x(d => x(d.time_seconds))
+            .y(d => y(d.HR));
+    
+        g.append("path")
+            .datum(downsampledPerson)
+            .attr("fill", "none")
+            .attr("stroke", "crimson")
+            .attr("stroke-width", 2)
+            .attr("d", personLine);
 
-function draw(datasetBase, xScale, yScale, xAxisGroup, yAxisGroup, g, line, width, height, margin) {
-    //path for HR and HR
-  const dataPath = datasetBase;
-    //load the dataset
-  Promise.all([
-    d3.csv(dataPath)
-  ]).then(([Data]) => {
-    handlHRta(Data, xScale, yScale, xAxisGroup, yAxisGroup, g, line, width, height, margin);
-  });
+        setupTooltip(
+            g.selectAll(".line-dot")
+                .data(personData)
+                .enter().append("circle")
+                .attr("class", "line-dot")
+                .attr("cx", d => xScale(d.time_seconds))
+                .attr("cy", d => yScale(d.HR))
+                .attr("r", 4)
+                .attr("fill", "transparent")
+                .attr("stroke", "transparent"),
+            "HR"
+        );
+
+        // add labels for x and y axis
+        
+
+        
+    
+    
+    });
+
 }

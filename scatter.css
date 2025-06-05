@@ -9,6 +9,7 @@ body {
     height: calc(100vh - 50px);
 }
 
+/* #chart1, #chart2, #chart3, #chart4 */
 #chart, #container {
     flex: 1;
     padding: 10px;

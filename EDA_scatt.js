@@ -66,7 +66,7 @@ async function renderScatterPlot() {
     const height = 600;
 
     const svg = d3
-        .select('#chart')
+        .select('#chart1')
         .append('svg')
         .attr('viewBox', `0 0 ${width} ${height}`)
         .attr('width', width) 
