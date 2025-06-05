@@ -114,6 +114,30 @@
             max-width: 800px;
             margin: 0 auto 30px;
         }
+
+        .quote-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: var(--shadow-md);
+            margin: 40px auto;
+            max-width: 800px;
+            border-left: 5px solid var(--accent-purple);
+            font-style: italic;
+            position: relative;
+        }
+        
+        .quote-card::before {
+            content: "";
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            font-size: 5rem;
+            color: var(--accent-purple);
+            opacity: 0.2;
+            font-family: serif;
+            line-height: 1;
+        }
         
         /* Dashboard Controls */
         .dashboard-controls {
@@ -370,8 +394,17 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="container">
-            <h1 class="hero-title">Physiological Response to Academic Stress</h1>
-            <p class="hero-subtitle">Explore how students' physiological signals change during exams across pre-test, in-test, and post-test periods</p>
+            <h1 class="hero-title">Decoding the Physiology of Exam Stress</h1>
+            <p class="hero-subtitle">A comprehensive analysis of how physiological responses correlate with academic performance across exam periods</p>
+            
+            <div class="quote-card">
+                "Stress is not what happens to us. It's our physiological response to what happens. And in an academic setting, these responses reveal fascinating patterns that predict performance."
+            </div>
+        </div>
+
+        <div class="scroll-down">
+            <i class="fas fa-chevron-down"></i>
+            <span>Explore the Data</span>
         </div>
     </section>
 
@@ -395,12 +428,11 @@
             </div>
             
             <div class="control-group">
-                <span class="control-label">Signal:</span>
-                <select id="signal-select">
-                    <option value="HR">Heart Rate</option>
-                    <option value="EDA">Electrodermal Activity</option>
-                    <option value="TEMP">Temperature</option>
-                    <option value="BVP">Blood Volume Pulse</option>
+                <span class="control-label">Exam:</span>
+                <select id="exam-select">
+                    <option value="Midterm 1">Midterm 1</option>
+                    <option value="Midterm 2">Midterm 2</option>
+                    <option value="Final">Final Exam</option>
                 </select>
             </div>
             
@@ -420,56 +452,56 @@
     <!-- Dashboard Grid -->
     <div class="container">
         <div class="dashboard-grid">
-            <!-- Midterm 1 Card -->
+            <!-- Heart Rate Card -->
             <div class="grid-card">
                 <div class="card-header">
                     <div class="card-icon">
                         <i class="fas fa-book"></i>
                     </div>
-                    <h3 class="card-title">Midterm 1 Analysis</h3>
+                    <h3 class="card-title">Heart Rate Analysis</h3>
                 </div>
                 <div class="card-description">
                     Physiological response during the first midterm exam (1.5 hours)
                 </div>
-                <div class="chart-container" id="midterm1-chart"></div>
+                <div class="chart-container" id="hr-chart"></div>
                 <div class="card-footer">
                     <span class="highlight">Pre-test: 15 min</span> | 
                     <span class="warning">In-test: 90 min</span> | 
                     <span class="danger">Post-test: 15 min</span>
                 </div>
             </div>
-            
-            <!-- Midterm 2 Card -->
+
+            <!-- EDA Card -->
             <div class="grid-card">
                 <div class="card-header">
                     <div class="card-icon">
                         <i class="fas fa-book"></i>
                     </div>
-                    <h3 class="card-title">Midterm 2 Analysis</h3>
+                    <h3 class="card-title">EDA (Electrodermal Activity) Analysis</h3>
                 </div>
                 <div class="card-description">
                     Physiological response during the second midterm exam (1.5 hours)
                 </div>
-                <div class="chart-container" id="midterm2-chart"></div>
+                <div class="chart-container" id="eda-chart"></div>
                 <div class="card-footer">
                     <span class="highlight">Pre-test: 15 min</span> | 
                     <span class="warning">In-test: 90 min</span> | 
                     <span class="danger">Post-test: 15 min</span>
                 </div>
             </div>
-            
-            <!-- Final Exam Card -->
+
+            <!-- Temperature Card -->
             <div class="grid-card">
                 <div class="card-header">
                     <div class="card-icon">
                         <i class="fas fa-graduation-cap"></i>
                     </div>
-                    <h3 class="card-title">Final Exam Analysis</h3>
+                    <h3 class="card-title">Temperature Analysis</h3>
                 </div>
                 <div class="card-description">
                     Physiological response during the final exam (3 hours)
                 </div>
-                <div class="chart-container" id="final-chart"></div>
+                <div class="chart-container" id="temp-chart"></div>
                 <div class="card-footer">
                     <span class="highlight">Pre-test: 15 min</span> | 
                     <span class="warning">In-test: 180 min</span> | 
@@ -559,7 +591,7 @@
                 this.datasetPath = 'dataset/';
                 this.students = ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10'];
                 this.exams = ['Midterm 1', 'Midterm 2', 'Final'];
-                this.signals = ['HR', 'EDA', 'TEMP', 'BVP'];
+                this.signals = ['HR', 'EDA', 'TEMP'];
                 this.grades = {
                     'S1': { 'Midterm 1': 78, 'Midterm 2': 82, 'Final': 182 },
                     'S2': { 'Midterm 1': 82, 'Midterm 2': 85, 'Final': 180 },
@@ -627,17 +659,17 @@
             }
             
             // Load data for a specific student and signal across all exams
-            async loadStudentData(student, signal) {
+            async loadStudentData(student, exam) {
                 const studentData = {};
                 
-                for (const exam of this.exams) {
+                for (const signal of this.signals) {
                     const filePath = this.getFilePath(student, exam, signal);
-                    studentData[exam] = await this.loadCSVData(filePath);
+                    studentData[signal] = await this.loadCSVData(filePath);
                 }
                 
                 this.loadedData[student] = this.loadedData[student] || {};
-                this.loadedData[student][signal] = studentData;
-                
+                this.loadedData[student][exam] = studentData;
+
                 return studentData;
             }
             
@@ -701,22 +733,24 @@
         document.addEventListener('DOMContentLoaded', function() {
             const dataHandler = new DataHandler();
             let currentStudent = 'S1';
-            let currentSignal = 'HR';
+            let currentExam = 'Midterm 1';
             
             // DOM elements
             const studentSelect = document.getElementById('student-select');
-            const signalSelect = document.getElementById('signal-select');
+            const examSelect = document.getElementById('exam-select');
             // const refreshBtn = document.getElementById('refresh-btn');
             const loadDataBtn = document.getElementById('load-data-btn');
             const loadingIndicator = document.getElementById('loading-indicator');
             const periodSelect = document.getElementById('period-select');
             
             // Initialize charts with empty data
-            renderTimelineChart('midterm1-chart', [], 'Midterm 1', currentSignal);
-            renderTimelineChart('midterm2-chart', [], 'Midterm 2', currentSignal);
-            renderTimelineChart('final-chart', [], 'Final', currentSignal);
-            renderPerformanceChart(dataHandler, currentSignal);
-            
+            renderTimelineChart('hr-chart', [], currentExam, 'HR');
+            renderTimelineChart('eda-chart', [], currentExam, 'EDA');
+            renderTimelineChart('temp-chart', [], currentExam, 'TEMP');
+
+            // TODO: Fix this later!
+            // renderPerformanceChart(dataHandler, 'HR');
+
             // Load data button
             loadDataBtn.addEventListener('click', async function() {
                 try {
@@ -724,20 +758,20 @@
                     
                     // Get current selections
                     currentStudent = studentSelect.value;
-                    currentSignal = signalSelect.value;
+                    currentExam = examSelect.value;
                     
                     // Load data for the selected student and signal
-                    await dataHandler.loadStudentData(currentStudent, currentSignal);
+                    await dataHandler.loadStudentData(currentStudent, currentExam);
                     
                     // Update charts
-                    updateCharts(dataHandler, currentStudent, currentSignal);
+                    updateCharts(dataHandler, currentStudent, currentExam);
                     
                     loadingIndicator.style.display = 'none';
                 } catch (error) {
                     console.error('Error loading data:', error);
                     loadingIndicator.style.display = 'none';
                     alert('Error loading data. Using mock data for demonstration.');
-                    useMockData(dataHandler, currentStudent, currentSignal);
+                    useMockData(dataHandler, currentStudent, currentExam);
                 }
             });
             
@@ -754,34 +788,35 @@
             });
             
             // Use mock data for initial demonstration
-            useMockData(dataHandler, currentStudent, currentSignal);
+            useMockData(dataHandler, currentStudent, currentExam);
         });
         
         // Use mock data for demonstration
-        function useMockData(dataHandler, student, signal) {
+        function useMockData(dataHandler, student, exam) {
             const mockData = {};
             
-            for (const exam of dataHandler.exams) {
-                mockData[exam] = dataHandler.generateMockData(student, exam, signal);
+            for (const signal of dataHandler.signals) {
+                mockData[signal] = dataHandler.generateMockData(student, exam, signal);
             }
             
             dataHandler.loadedData[student] = dataHandler.loadedData[student] || {};
-            dataHandler.loadedData[student][signal] = mockData;
+            dataHandler.loadedData[student][exam] = mockData;
             
-            updateCharts(dataHandler, student, signal);
+            updateCharts(dataHandler, student, exam);
         }
         
         // Update all charts
-        function updateCharts(dataHandler, student, signal) {
-            const studentData = dataHandler.loadedData[student]?.[signal];
+        function updateCharts(dataHandler, student, exam) {
+            const studentData = dataHandler.loadedData[student]?.[exam];
             
             if (studentData) {
-                renderTimelineChart('midterm1-chart', studentData['Midterm 1'], 'Midterm 1', signal);
-                renderTimelineChart('midterm2-chart', studentData['Midterm 2'], 'Midterm 2', signal);
-                renderTimelineChart('final-chart', studentData['Final'], 'Final', signal);
+                renderTimelineChart('hr-chart', studentData['HR'], exam, 'HR');
+                renderTimelineChart('eda-chart', studentData['EDA'], exam, 'EDA');
+                renderTimelineChart('temp-chart', studentData['TEMP'], exam, 'TEMP');
             }
             
-            renderPerformanceChart(dataHandler, signal);
+            // TODO: FIX THIS LATER!
+            // renderPerformanceChart(dataHandler, signal);
         }
         
         // Render timeline chart
