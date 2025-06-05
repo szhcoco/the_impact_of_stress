@@ -515,11 +515,18 @@
     <div class="container">
         <div class="performance-section">
             <div class="performance-content">
-                <h2>How Physiological Signals Relate to Academic Performance</h2>
-                
+                <h2 style="text-align: center;">How Physiological Signals Relate to Academic Performance</h2>
                 <div class="chart-container" id="performance-chart"></div>
                 
-                <div class="controls" style="background: transparent; box-shadow: none; padding: 10px 0; justify-content: center;">
+                <div class="controls" style="background: transparent; box-shadow: none; padding: 10px 0; justify-content: center; display: flex; gap: 20px;">
+                    <div class="control-group">
+                        <span class="control-label">Bio-Signal:</span>
+                        <select id="signal-select">
+                            <option value="HR">Heart Rate</option>
+                            <option value="EDA">Electrodermal Activity</option>
+                            <option value="TEMP">Temperature</option>
+                        </select>
+                    </div>
                     <div class="control-group">
                         <span class="control-label">Exam Period:</span>
                         <select id="period-select">
@@ -742,6 +749,7 @@
             const loadDataBtn = document.getElementById('load-data-btn');
             const loadingIndicator = document.getElementById('loading-indicator');
             const periodSelect = document.getElementById('period-select');
+            const signalSelect = document.getElementById('signal-select');
             
             // Initialize charts with empty data
             renderTimelineChart('hr-chart', [], currentExam, 'HR');
@@ -749,7 +757,7 @@
             renderTimelineChart('temp-chart', [], currentExam, 'TEMP');
 
             // TODO: Fix this later!
-            // renderPerformanceChart(dataHandler, 'HR');
+            renderPerformanceChart(dataHandler, signalSelect.value);
 
             // Load data button
             loadDataBtn.addEventListener('click', async function() {
@@ -784,7 +792,12 @@
             
             // Period select change
             periodSelect.addEventListener('change', function() {
-                renderPerformanceChart(dataHandler, currentSignal);
+                renderPerformanceChart(dataHandler, signalSelect.value);
+            });
+
+            // Signal select change
+            signalSelect.addEventListener('change', function() {
+                renderPerformanceChart(dataHandler, signalSelect.value);
             });
             
             // Use mock data for initial demonstration
@@ -815,8 +828,6 @@
                 renderTimelineChart('temp-chart', studentData['TEMP'], exam, 'TEMP');
             }
             
-            // TODO: FIX THIS LATER!
-            // renderPerformanceChart(dataHandler, signal);
         }
         
         // Render timeline chart
