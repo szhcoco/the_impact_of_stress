@@ -12,16 +12,16 @@ async function loadData() {
         students: d.students,
         midterm_1: +d.Midterm_1,
         midterm_2: +d.Midterm_2,
-        final: +d.Final
+        final: +d.Final / 2,
+
     }));
 
     for (let student = 1; student <= studentCount; student++) {
         const s = student < 10 ? `S0${student}` : `S${student}`;
         const s_grade = grades.find(g => g.students === s);
-        const avg_score = (s_grade.midterm_1 + s_grade.midterm_2 + s_grade.final / 2) / 3;
 
-
-        let allTestEDA = [];
+        // const avg_score = (s_grade.midterm_1 + s_grade.midterm_2 + s_grade.final / 2) / 3;
+        // let allTestEDA = [];
 
         for (const test of tests) {
             const path = `dataset/S${student}_processed/${test}/EDA.csv`;
@@ -33,24 +33,26 @@ async function loadData() {
 
             const inTestEDA = data.filter(d => d.period === 'in-test').map(d => d.EDA);
 
+            // allTestEDA.push(...inTestEDA);
+            const avg_eda = inTestEDA.reduce((sum, v) => sum + v, 0) / inTestEDA.length;
 
-            allTestEDA.push(...inTestEDA);
+            let score;
+            if (test === 'Midterm 1') score = s_grade.midterm_1;
+            else if (test === 'Midterm 2') score = s_grade.midterm_2;
+            else if (test === 'Final') score = s_grade.final;
+
+            eda_grades.push({
+                student,
+                test,
+                avg_EDA: avg_eda,
+                score: score,
+    
+    
+            });
 
         }
 
-        const avg_eda = allTestEDA.reduce((sum, v) => sum + v, 0) / allTestEDA.length;
 
-        eda_grades.push({
-            student,
-            avg_EDA: avg_eda,
-            avg_score: avg_score,
-            midterm_1: s_grade.midterm_1,
-            midterm_2: s_grade.midterm_2,
-            final: s_grade.final,
-            
-
-
-        });
     }
 
     return eda_grades;
@@ -60,41 +62,32 @@ async function loadData() {
 async function renderScatterPlot() {
     const data = await loadData();
 
-    const width = 600;
-    const height = 400;
+    const width = 1100;
+    const height = 600;
 
     const svg = d3
         .select('#chart')
         .append('svg')
         .attr('viewBox', `0 0 ${width} ${height}`)
-        .attr('width', width) // <- Add this
+        .attr('width', width) 
         .attr('height', height);
     
-    // const svg = d3
-    //     .select('#chart')
-    //     .append('svg')
-    //     .attr('viewBox', `0 0 ${width} ${height}`)
-    //     .attr('preserveAspectRatio', 'xMidYMid meet')
-    //     .style('width', '100%')
-    //     .style('height', '100%');
 
-    // x axis = avg_eda
     const xScale = d3
         .scaleLinear()
         .domain(d3.extent(data, (d) => +d.avg_EDA))
         .range([0, width])
         .nice();
 
-    const yScale = d3.scaleLinear().domain(d3.extent(data, (d) => +d.avg_score)).range([height, 0])
+    const yScale = d3.scaleLinear().domain(d3.extent(data, (d) => +d.score)).range([height, 0])
 
     const margin = { top: 10, right: 10, bottom: 50, left: 40 };
 
     const usableArea = {
-        // start at y = 10 (y increase from top to bottom)
         top: margin.top,
         right: width - margin.right,
         bottom: height - margin.bottom,
-        left: margin.left,
+        left: margin.left + 250,
         width: width - margin.left - margin.right,
         height: height - margin.top - margin.bottom,
     };
@@ -105,6 +98,11 @@ async function renderScatterPlot() {
     const xAxis = d3.axisBottom(xScale);
     const yAxis = d3.axisLeft(yScale);
 
+    // add legend for the dots
+    const students = Array.from(new Set(data.map(d => d.student)));
+
+    const color = d3.scaleOrdinal().domain(students).range(d3.schemePaired);
+
     const dots = svg.append('g').attr('class', 'dots');
 
     dots
@@ -113,23 +111,26 @@ async function renderScatterPlot() {
         .enter()
         .append('circle')
         .attr('cx', (d) => xScale(d.avg_EDA))
-        .attr('cy', (d) => yScale(d.avg_score))
-        .attr('r', 5)
-        .style('fill-opacity', 0.7)
-        .style('fill', 'steelblue')
+        .attr('cy', (d) => yScale(d.score))
+        .attr('r', 16)
+        .style('fill-opacity', 0.8)
+        .style('fill', d => color(d.student))
+        .attr('stroke', 'black')
+        .attr('stroke-width', 0.5)
+        .attr('class', d => `dot student-${d.student}`)
         .on('mouseover', (event, d) => {
-            let svg1 = d3.select('#mid1');
-            let svg2 = d3.select('#mid2');
-            let svg3 = d3.select('#final');
+            let svg = d3.select('#test');
+            // let svg2 = d3.select('#mid2');
+            // let svg3 = d3.select('#final');
 
-            d3.select('#student-name').text('Student '+d.student);
-            d3.select('label#midterm1').text('Midterm 1 Score: '+d.midterm_1);
-            d3.select('label#midterm2').text('Midterm 2 Score: '+d.midterm_2);
-            d3.select('label#finalexam').text('Final Score: '+d.final);
+            d3.select('#student-name').text('Student '+d.student + ' - ' + d.test + ": Score " + d.score);
+            // d3.select('label#midterm1').text('Midterm 1 Score: '+d.midterm_1+' Rank: '+d.m1_rank);
+            // d3.select('label#midterm2').text('Midterm 2 Score: '+d.midterm_2+' Rank: '+d.m2_rank);
+            // d3.select('label#finalexam').text('Final Score: '+d.final+' Rank: '+d.final_rank);
 
-            EDA.createPlot(svg1, 'S'+d.student, 'Midterm 1');
-            EDA.createPlot(svg2, 'S'+d.student, 'Midterm 2');
-            EDA.createPlot(svg3, 'S'+d.student, 'Final');
+            EDA.createPlot(svg, 'S'+d.student, d.test);
+            // EDA.createPlot(svg2, 'S'+d.student, 'Midterm 2');
+            // EDA.createPlot(svg3, 'S'+d.student, 'Final');
         });
 
     const gridlines = svg
@@ -148,9 +149,10 @@ async function renderScatterPlot() {
         .call(xAxis)
         .append("text")
         .attr('x', (usableArea.left + usableArea.right) / 2)
-        .attr('y', 30)
+        .attr('y', 50)
         .attr('fill', 'black')
         .attr('text-anchor', 'middle')
+        .attr('font-size', '20px')
         .text('Average EDA');
     
     // render yaxis
@@ -166,12 +168,64 @@ async function renderScatterPlot() {
         .attr("x", -(usableArea.top + usableArea.bottom) / 2)
         .attr("y", -30)
         .attr("fill", "black")
+        .attr('font-size', '20px')
         .text("Weighted Average Grade");
+
+
+    // render legend
+    const legend = svg.append('g')
+        .attr('class', 'legend')
+        .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+
+    // give each student a legend
+    // also enable clickable interaction:
+    // when a student is selected, enlargen the three dots; and restore if click again
+    const legendItem = legend.selectAll('.legend-item')
+        .data(students)
+        .enter()
+        .append('g')
+        .attr('class', 'legend-item')
+        .attr('transform', (d, i) => `translate(0, ${i * 50})`)
+        .style('cursor', 'pointer')
+        .on('click', function(event, student) {
+            const legend = d3.selectAll('.legend-item');
+            const dots = d3.selectAll('.dot');
+    
+            const clickedLegend = d3.select(this);
+            const isSelected = clickedLegend.classed('selected');
+    
+            if (isSelected) {
+                clickedLegend.classed('selected', false);
+                dots.filter(d => d.student === student)
+                    .attr('r', 16);
+            } else {
+                legend.classed('selected', false);
+                dots.attr('r', 16);
+    
+                clickedLegend.classed('selected', true);
+                dots.filter(d => d.student === student)
+                    .attr('r', 25);
+            }
+        });
+
+    legendItem.append('rect')
+        .attr('x', 0)
+        .attr('y', -10)
+        .attr('width', 28)
+        .attr('height', 28)
+        .attr('fill', d => color(d));
+
+    legendItem.append('text')
+        .attr('x', 45)
+        .attr('y', 0)
+        .attr('dy', '0.5em')
+        .attr('font-size', '20px')
+        .text(d => `Student ${d}`);
+
 }
 
 const data = loadData();
 console.log(data);
 
 renderScatterPlot();
-
-// dataset/S1_processed/Midterm 1/EDA.csv
