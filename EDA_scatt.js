@@ -81,7 +81,7 @@ async function renderScatterPlot() {
 
     const yScale = d3.scaleLinear().domain(d3.extent(data, (d) => +d.score)).range([height, 0])
 
-    const margin = { top: 10, right: 10, bottom: 50, left: 40 };
+    const margin = { top: 20, right: 10, bottom: 50, left: 40 };
 
     const usableArea = {
         top: margin.top,
