@@ -1,0 +1,31 @@
+student,test,max_time,min_time
+S1,Midterm 1,28min51s,58min10s
+S1,Midterm 2,12min54s,0min12s
+S1,Final,114min11s,183min35s
+S2,Midterm 1,1min59s,67min24s
+S2,Midterm 2,10min35s,10min32s
+S2,Final,183min6s,30min1s
+S3,Midterm 1,8min3s,53min37s
+S3,Midterm 2,16min10s,52min55s
+S3,Final,10min48s,30min2s
+S4,Midterm 1,5min5s,70min44s
+S4,Midterm 2,8min48s,3min45s
+S4,Final,27min46s,0min0s
+S5,Midterm 1,0min13s,36min37s
+S5,Midterm 2,16min31s,0min0s
+S5,Final,17min45s,6min5s
+S6,Midterm 1,36min16s,82min23s
+S6,Midterm 2,35min18s,0min33s
+S6,Final,11min7s,51min50s
+S7,Midterm 1,8min35s,3min34s
+S7,Midterm 2,90min28s,0min33s
+S7,Final,22min40s,0min0s
+S8,Midterm 1,73min27s,2min18s
+S8,Midterm 2,26min24s,0min0s
+S8,Final,71min26s,6min46s
+S9,Midterm 1,77min31s,55min54s
+S9,Midterm 2,62min30s,7min26s
+S9,Final,162min21s,1min6s
+S10,Midterm 1,43min6s,43min6s
+S10,Midterm 2,43min54s,0min14s
+S10,Final,183min40s,182min52s
