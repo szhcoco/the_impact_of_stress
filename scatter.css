@@ -126,20 +126,22 @@ header {
 }
 
 .quote-card {
-  background: var(--secondary-light);
-  color: var(--text-dark);
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  border-left: 4px solid var(--accent-purple);
   padding: 1.5rem;
   border-radius: 0.75rem;
-  box-shadow: var(--shadow-sm);
-  font-style: italic;
-  margin-bottom: 3rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  margin: 0 auto 3rem;
+  max-width: 700px;
 }
 
 /* Font imports keep Montserrat, Playfair, Great Vibes */
 .quote-text {
   font-family: 'Great Vibes', cursive;
-  font-size: 1.75rem;
-  color: var(--accent-purple);
+  font-size: 1.5rem;
+  color: var(--text-light);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
   margin: 0;
 }
 
@@ -157,6 +159,37 @@ header {
   font-size: 0.75rem;
 }
 
+/* Load-charts section styling */
+.load-charts-section {
+  height: 100vh;
+  scroll-snap-align: start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: var(--primary-light);
+}
+
+/* Bottom arrow inside load-charts section */
+.load-charts-section .bottom-arrow {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  animation: bounce 2s infinite;
+  color: var(--accent-red);
+}
+.load-charts-section .bottom-arrow i {
+  font-size: 2rem;
+}
+.load-charts-section .bottom-arrow .scroll-text {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
 
 @keyframes bounce {
   0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }
