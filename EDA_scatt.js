@@ -87,6 +87,15 @@ export async function renderScatterPlot() {
         .attr('width', width) 
         .attr('height', height);
 
+    // add a message to show the accuracy of line user drawn
+    d3.select('#EDA-chart')
+        .append('p')
+        .attr('id', 'feedback-message')
+        .style('font-size', '20px')
+        .style('margin-top', '10px')
+        .style('color', '#333')
+        .style('font-weight', 'bold');
+
     const {xScale, yScale, usableArea} = await getEDAScales(Promise.resolve(data), width, height, margin);
     
 
@@ -196,12 +205,14 @@ export async function renderScatterPlot() {
         .attr('visibility', 'hidden');
 
     let isDrawing = false;
+    let hasDrawn = false;
     let startPoint = null;
 
     svg.select('.draw-overlay')
         .style('pointer-events', 'all')
         .style('fill', 'transparent')
         .on('mousedown', (event) => {
+            if (hasDrawn) return; 
             isDrawing = true;
             const [mx, my] = d3.pointer(event);
             startPoint = [mx, my];
@@ -214,7 +225,7 @@ export async function renderScatterPlot() {
         })
         .on('mousemove', (event) => {
             if (!isDrawing) return;
-            const [mx, my] = d3.pointer(event);
+            const [mx, my] = d3.pointer(event, svg.node());
             userLine.attr('x2', mx).attr('y2', my);
         })
         .on('mouseup', (event) => {
@@ -332,6 +343,39 @@ export async function renderScatterPlot() {
             .delay(1000)
             .duration(1000)
             .style('opacity', 0.8);
+        
+            
+        hasDrawn = true;
+
+        const ux1 = xScale.invert(userCoords.x1);
+        const uy1 = yScale.invert(userCoords.y1);
+        const ux2 = xScale.invert(userCoords.x2);
+        const uy2 = yScale.invert(userCoords.y2);
+
+        const userSlope = (uy2 - uy1) / (ux2 - ux1);
+        const userIntercept = uy1 - userSlope * ux1;
+
+        const mse = d3.mean(data, d => {
+            const yUser = userSlope * d.avg_EDA + userIntercept;
+            const yTrue = slope * d.avg_EDA + intercept;
+            return (yUser - yTrue) ** 2;
+        });
+
+        //normalize the error
+        const maxPossibleError = d3.variance(data.map(d => d.score));
+        const accuracy = 100 * (1 - mse / maxPossibleError);
+
+        // restrict the accuracy to be always within [0, 100]
+        const clampedAccuracy = Math.max(0, Math.min(accuracy, 100));
+
+        // show message abased on the accuracy
+        const messageBox = d3.select('#feedback-message');
+        if (clampedAccuracy >= 70) {
+            messageBox.text(`🎉 Great job! Your hypothesis matches the output. Accuracy: ${clampedAccuracy.toFixed(1)}%`);
+        } else {
+            messageBox.text(`📉 Nice try, but the actual output is a bit different. Accuracy: ${clampedAccuracy.toFixed(1)}%`);
+        }
+
     }
 }
 
