@@ -6,7 +6,7 @@ import * as ACC_scatt from './ACC_scatt.js';
 
 // index of slide is [0, totalSlides-1]
 let currentSlide = 0;
-const totalSlides = 10;
+const totalSlides = 6;
 let isScrolling = false;
 
 //remove all things to have an empty body
@@ -42,48 +42,36 @@ function showSlide(slideIndex) {
     case 0:
         removeAll();
         addHead();
-      break;
+        break;
     case 1:
         removeAll();
-      d3.select('body').append('p').text('explanation for EDA');
-      break;
+        addDiv();
+        d3.select('#chart').append('p').text('explanation for HR');
+        d3.select('#chart').append('div').attr('id', 'chart2');
+        HR_scatt.renderScatterPlot();
+        break;
     case 2:
         removeAll();
         addDiv();
+        d3.select('#chart').append('p').text('explanation for EDA');
         d3.select('#chart').append('div').attr('id', 'chart1');
         EDA_scatt.renderScatterPlot();
-      break;
+        break;
     case 3:
         removeAll();
-        d3.select('body').append('p').text('explanation for HR');
-      break;
-    case 4:
-        removeAll();
         addDiv();
-        d3.select('#chart').append('div').attr('id', 'chart2');
-        HR_scatt.renderScatterPlot();
-      break;
-    case 5:
-        removeAll();
-        d3.select('body').append('p').text('explanation for TEMP');
-      break;
-    case 6:
-        removeAll();
-        addDiv();
+        d3.select('#chart').append('p').text('explanation for TEMP');
         d3.select('#chart').append('div').attr('id', 'chart3');
         TEMP_scatt.renderScatterPlot();
         break;
-    case 7:
-        removeAll();
-        d3.select('body').append('p').text('explanation for ACC');
-        break;
-    case 8:
+    case 4:
         removeAll();
         addDiv();
+        d3.select('#chart').append('p').text('explanation for ACC');
         d3.select('#chart').append('div').attr('id', 'chart4');
         ACC_scatt.renderScatterPlot();
         break;
-    case 9:
+    case 5:
         removeAll();
         d3.select('body').append('p').text('conclusion');
         break;
