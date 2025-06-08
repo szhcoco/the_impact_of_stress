@@ -128,6 +128,7 @@ export async function renderScatterPlot() {
             let svg = d3.select('#test');
             // let svg2 = d3.select('#mid2');
             // let svg3 = d3.select('#final');
+            svg.selectAll('*').remove()
 
             d3.select('#student-name').text('Student '+d.student + ' - ' + d.test + ": Score " + d.score);
             // d3.select('label#midterm1').text('Midterm 1 Score: '+d.midterm_1+' Rank: '+d.m1_rank);
@@ -196,10 +197,12 @@ export async function renderScatterPlot() {
         .attr('visibility', 'hidden');
 
     let isDrawing = false;
+    let hasDrawn = false;
     let startPoint = null;
 
     svg.select('.draw-overlay')
         .on('mousedown', (event) => {
+            if (hasDrawn) return; 
             isDrawing = true;
             const [mx, my] = d3.pointer(event);
             startPoint = [mx, my];
@@ -319,6 +322,8 @@ export async function renderScatterPlot() {
             .delay(1000)
             .duration(1000)
             .style('opacity', 0.8);
+        
+        hasDrawn = true;
     }
 }
 
