@@ -106,4 +106,21 @@ function onScroll(event) {
   }, 1500);
 }
 
-window.addEventListener("wheel", onScroll);
+document.addEventListener('DOMContentLoaded', () => {
+  const intro = document.querySelector('#intro-hooks');
+  const scrollBtn = document.querySelector('.scroll-indicator');
+
+  // Intersection observer for hook animation
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      entry.target.classList.toggle('hook-visible', entry.isIntersecting);
+    });
+  }, { threshold: 0.2 });
+
+  observer.observe(intro);
+
+  // Click to scroll to hook section
+  scrollBtn.addEventListener('click', () => {
+    document.querySelector('.hook-section').scrollIntoView({ behavior: 'smooth' });
+  });
+});
