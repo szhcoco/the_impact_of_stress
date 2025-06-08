@@ -229,4 +229,4 @@ export async function renderScatterPlot() {
 // const data = loadData();
 // console.log(data);
 
-renderScatterPlot();
+// renderScatterPlot();
