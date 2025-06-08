@@ -227,6 +227,17 @@ export async function renderScatterPlot() {
             };
 
             showBestFitLine(userCoords);
+
+            svg.select('.draw-overlay')
+                .style('cursor', 'default')
+                .on('mousedown', null)
+                .on('mousemove', null)
+                .on('mouseup', null);
+
+                // overlay.remove();
+
+            // Ensure dots group is above overlay for interactivity
+            svg.select('.dots').raise();
         });
 
 
