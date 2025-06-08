@@ -21,11 +21,11 @@ function addHead() {
 }
 //add div and tooltip back for scatter and line plots
 function addDiv() {
-    d3.select('body').append('div').attr('id', 'layout');
-    d3.select('#layout').append('div').attr('id', 'chart');
-    d3.select('#layout').append('div').attr('id', 'container');
-    d3.select('#container').append('div').attr('id', 'tooltip').attr('style', 'opacity: 0;');
-    d3.select('#container').append('div').attr('id', 'main');
+    d3.select('body').append('div').attr('id', 'layout').attr('class', 'container');
+    d3.select('#layout').append('div').attr('id', 'chart').attr('class', 'container');
+    d3.select('#layout').append('div').attr('id', 'container').attr('class', 'container');
+    d3.select('#container').append('div').attr('id', 'tooltip').attr('style', 'opacity: 0;').attr('class', 'container');
+    d3.select('#container').append('div').attr('id', 'main').attr('class', 'container');
     d3.select('#main').append('h4').attr('id', 'student-name');
     d3.select('#main').append('svg').attr('id', 'test').attr('height', '200px');
 }
@@ -48,9 +48,10 @@ function showSlide(slideIndex) {
     case 1:
         removeAll();
         addDiv();
-        d3.select('#chart').append('p').text('explanation for HR');
-        d3.select('#chart').append('div').attr('id', 'chart2');
         HR_scatt.renderScatterPlot();
+        d3.select('#chart').append('p').text('explanation for HR');
+        //d3.select('#chart').append('div').attr('id', 'chart2');
+        //HR_scatt.renderScatterPlot();
         break;
     case 2:
         removeAll();
