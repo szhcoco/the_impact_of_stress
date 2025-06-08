@@ -186,7 +186,7 @@ export async function renderScatterPlot() {
         .attr('width', usableArea.right - usableArea.left)
         .attr('height', usableArea.bottom - usableArea.top)
         .style('fill', 'transparent')
-        .style('cursor', 'crosshair');
+        .style('cursor', 'pointer');
 
     // Line to display user's drawing
     const userLine = svg.append('line')
@@ -199,6 +199,8 @@ export async function renderScatterPlot() {
     let startPoint = null;
 
     svg.select('.draw-overlay')
+        .style('pointer-events', 'all')
+        .style('fill', 'transparent')
         .on('mousedown', (event) => {
             isDrawing = true;
             const [mx, my] = d3.pointer(event);
@@ -338,4 +340,3 @@ export async function renderScatterPlot() {
 // console.log(data);
 
 // renderScatterPlot();
-
