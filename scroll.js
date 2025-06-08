@@ -48,30 +48,29 @@ function showSlide(slideIndex) {
     case 1:
         removeAll();
         addDiv();
-        HR_scatt.renderScatterPlot();
         d3.select('#chart').append('p').text('explanation for HR');
-        //d3.select('#chart').append('div').attr('id', 'chart2');
-        //HR_scatt.renderScatterPlot();
+        d3.select('#chart').append('div').attr('id', 'HR-chart');
+        HR_scatt.renderScatterPlot();
         break;
     case 2:
         removeAll();
         addDiv();
         d3.select('#chart').append('p').text('explanation for EDA');
-        d3.select('#chart').append('div').attr('id', 'chart1');
+        d3.select('#chart').append('div').attr('id', 'EDA-chart');
         EDA_scatt.renderScatterPlot();
         break;
     case 3:
         removeAll();
         addDiv();
         d3.select('#chart').append('p').text('explanation for TEMP');
-        d3.select('#chart').append('div').attr('id', 'chart3');
+        d3.select('#chart').append('div').attr('id', 'TEMP-chart');
         TEMP_scatt.renderScatterPlot();
         break;
     case 4:
         removeAll();
         addDiv();
         d3.select('#chart').append('p').text('explanation for ACC');
-        d3.select('#chart').append('div').attr('id', 'chart4');
+        d3.select('#chart').append('div').attr('id', 'ACC-chart');
         ACC_scatt.renderScatterPlot();
         break;
     case 5:

@@ -81,7 +81,7 @@ export async function renderScatterPlot() {
     const margin = { top: 20, right: 10, bottom: 50, left: 40 };
 
     const svg = d3
-        .select('#chart')
+        .select('#HR-chart')
         .append('svg')
         .attr('viewBox', `0 0 ${width} ${height}`)
         .attr('width', width) 
