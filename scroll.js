@@ -9,7 +9,7 @@ let currentSlide = 0;
 const totalSlides = 6;
 let isScrolling = false;
 
-//remove all things to have an empty body
+//remove all things inside body
 function removeAll() {
     d3.select('body').selectAll('*').remove();
 }
