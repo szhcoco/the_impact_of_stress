@@ -28,48 +28,78 @@
       </div>
   </header>
 
-  <!-- Hero Section: full viewport height with centered content and badge gradient background -->
+  <!-- HERO: full viewport, gradient, wave separator -->
   <section class="hero">
     <div class="hero-content container">
       <h1 class="hero-title">Decoding the Physiology of Exam Stress</h1>
       <p class="hero-subtitle">A comprehensive analysis of how physiological responses correlate with academic performance across exam periods</p>
       <div class="quote-card">
-        "Stress is not what happens to us. It's our physiological response to what happens. And in an academic setting, these responses reveal fascinating patterns that predict performance."
+        <p class="quote-text">"Stress is not what happens to us. It's our physiological response to what happens. And in an academic setting, these responses reveal fascinating patterns that predict performance."</p>
       </div>
-      <!-- Scroll indicator: click to continue -->
-      <div class="scroll-indicator" title="Click to continue">
+      <!-- Hero scroll arrow -->
+      <div class="scroll-indicator" data-target="#hook1" title="Click to continue">
         <i class="fas fa-chevron-down"></i>
-        <span class="scroll-text">Click</span>
+        <span class="scroll-text">Next</span>
+      </div>
+    </div>
+    <!-- SVG wave at bottom -->
+    <div class="wave-separator">
+      <svg viewBox="0 0 1200 100" preserveAspectRatio="none"><path d="M0,0 C600,100 600,0 1200,100 L1200,100 L0,100 Z" fill="var(--primary-light)"/></svg>
+    </div>
+  </section>
+
+  <!-- HOOK 1: Key Metrics -->
+  <section class="hook-section" id="hook1">
+    <div class="container">
+      <h2 class="hook-heading">Key Metrics Explored</h2>
+      <div class="metrics-list">
+        <div class="metric">
+          <i class="fas fa-heartbeat accent-red"></i>
+          <span>Heart Rate</span>
+        </div>
+        <div class="metric">
+          <i class="fas fa-wind accent-blue"></i>
+          <span>Skin Conductance</span>
+        </div>
+        <div class="metric">
+          <i class="fas fa-thermometer-half accent-yellow"></i>
+          <span>Temperature</span>
+        </div>
+        <div class="metric">
+          <i class="fas fa-running accent-green"></i>
+          <span>Movement</span>
+        </div>
+      </div>
+      <p class="hook-text">Our data-driven approach translates these signals into actionable insights—empowering you to harness stress for peak performance.</p>
+      <div class="scroll-indicator" data-target="#hook2" title="Next insight">
+        <i class="fas fa-chevron-down"></i>
       </div>
     </div>
   </section>
 
-  <!-- Hook Section: simplified metrics overview -->
-  <section class="hook-section">
+  <!-- HOOK 2: Why It Matters -->
+  <section class="hook-section" id="hook2">
     <div class="container">
-      <div class="intro-hooks" id="intro-hooks">
-        <h2>Key Metrics Explored</h2>
-        <div class="metrics-list">
-          <div class="metric">
-            <i class="fas fa-heartbeat accent-red"></i>
-            <span>Heart Rate</span>
-          </div>
-          <div class="metric">
-            <i class="fas fa-wind accent-blue"></i>
-            <span>Skin Conductance</span>
-          </div>
-          <div class="metric">
-            <i class="fas fa-thermometer-half accent-yellow"></i>
-            <span>Temperature</span>
-          </div>
-          <div class="metric">
-            <i class="fas fa-plane-departure accent-green"></i>
-            <span>Movement</span>
-          </div>
-        </div>
-        <p class="hook-text">
-          Our data-driven approach translates these signals into actionable insights—empowering you to harness stress for peak performance.
-        </p>
+      <h2 class="hook-heading">Why Physiological Insights Matter</h2>
+      <ul class="bullet-list">
+        <li>Personalize stress management strategies</li>
+        <li>Enhance focus and cognitive performance</li>
+        <li>Monitor real-time adaptations during exams</li>
+        <li>Track improvement across study cycles</li>
+      </ul>
+      <div class="scroll-indicator" data-target="#hook3" title="More">
+        <i class="fas fa-chevron-down"></i>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOOK 3: Next Steps -->
+  <section class="hook-section" id="hook3">
+    <div class="container">
+      <h2 class="hook-heading">Ready to Dive Deeper?</h2>
+      <p class="hook-text">Scroll into the interactive slides below to explore each metric in detail, complete with real-world data visualizations and insights.</p>
+      <div class="scroll-indicator" data-target="#slides" title="Go to visualizations">
+        <i class="fas fa-chevron-down"></i>
       </div>
     </div>
   </section>

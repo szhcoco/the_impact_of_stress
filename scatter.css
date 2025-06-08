@@ -17,8 +17,8 @@
     --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
     --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
     --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.1);
-    --badge-gradient: linear-gradient(135deg, #90B44B, var(--accent-green));
-    --cover-gradient: linear-gradient(135deg, var(--accent-green), var(--accent-yellow));
+    --badge-gradient: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+    --cover-gradient: linear-gradient(135deg, var(--accent-yellow), var(--accent-purple));
     /* --cover-gradient: linear-gradient(135deg, rgb(181, 202, 160), #0F4C3A); */
 }
 
@@ -135,27 +135,28 @@ header {
   margin-bottom: 3rem;
 }
 
-/* Scroll indicator styling */
-.scroll-indicator {
-  position: absolute;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 2rem;
-  color: var(--text-light);
-  cursor: pointer;
-  animation: bounce 2s infinite;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
+/* Font imports keep Montserrat, Playfair, Great Vibes */
+.quote-text {
+  font-family: 'Great Vibes', cursive;
+  font-size: 1.75rem;
+  color: var(--accent-purple);
+  margin: 0;
 }
 
-.scroll-text {
-  font-size: 0.875rem;
-  font-family: 'Montserrat', sans-serif;
+/* Scroll indicators (apply to all hook and hero) */
+.scroll-indicator {
+  margin-top: 2rem;
+  cursor: pointer;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
   color: var(--text-light);
+  animation: bounce 2s infinite;
 }
+.scroll-indicator .scroll-text {
+  font-size: 0.75rem;
+}
+
 
 @keyframes bounce {
   0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }
@@ -163,35 +164,74 @@ header {
   60% { transform: translate(-50%, -7px); }
 }
 
-/* Hook section styling */
+/* Hook-section base styling */
 .hook-section {
-  min-height: 100vh;
+  height: 100vh;
+  scroll-snap-align: start;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--primary-light);
-  scroll-snap-align: start;
+  position: relative;
 }
 
-.intro-hooks {
+.intro-hooks, .metrics-list, .bullet-list {
   opacity: 0;
   transform: translateY(50px);
   transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-  text-align: center;
-  font-family: 'Montserrat', sans-serif;
-  color: var(--text-dark);
-  max-width: 700px;
-  margin: 0 auto;
-  padding: 2rem;
-  background: var(--secondary-light);
-  border-radius: 1rem;
-  box-shadow: var(--shadow-md);
 }
-
-.intro-hooks.hook-visible {
+.intro-hooks.hook-visible, .metrics-list.hook-visible, .bullet-list.hook-visible {
   opacity: 1;
   transform: translateY(0);
 }
+
+/* Hook headings */
+.hook-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--accent-purple);
+  text-align: center;
+}
+
+/* Bullet list styling */
+.bullet-list {
+  list-style: none;
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  padding: 0;
+}
+.bullet-list li {
+  position: relative;
+  padding-left: 2.5rem;
+  margin-bottom: 1rem;
+  font-size: 1.125rem;
+}
+.bullet-list li::before {
+  content: '\f058'; /* FontAwesome check */
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  position: absolute;
+  left: 0;
+  top: 0.1rem;
+  color: var(--accent-green);
+}
+
+.metrics-list {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+.metric i { font-size: 2rem; }
 
 #slides {
   position: relative;

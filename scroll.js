@@ -107,20 +107,22 @@ function onScroll(event) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const intro = document.querySelector('#intro-hooks');
-  const scrollBtn = document.querySelector('.scroll-indicator');
-
-  // Intersection observer for hook animation
+  const sections = document.querySelectorAll('.hook-section');
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-      entry.target.classList.toggle('hook-visible', entry.isIntersecting);
+      const content = entry.target.querySelector('.metrics-list')
+                    || entry.target.querySelector('.bullet-list')
+                    || entry.target.querySelector('.quote-card');
+      if (content) content.classList.toggle('hook-visible', entry.isIntersecting);
     });
-  }, { threshold: 0.2 });
+  }, { threshold: 0.3 });
 
-  observer.observe(intro);
+  sections.forEach(sec => observer.observe(sec));
 
-  // Click to scroll to hook section
-  scrollBtn.addEventListener('click', () => {
-    document.querySelector('.hook-section').scrollIntoView({ behavior: 'smooth' });
+  document.querySelectorAll('.scroll-indicator').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = document.querySelector(btn.dataset.target);
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+    });
   });
 });
