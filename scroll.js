@@ -42,6 +42,8 @@ function showSlide(slideIndex) {
     case 0:
         removeAll();
         addHead();
+        d3.select('body').append('p').text('Stress plays a significant role in our academic performance—but to what extent does it actually affect exam outcomes? Some theories suggest that moderate stress can motivate students to focus and perform better, while others argue that excessive stress can impair concentration and lead to lower scores.');
+        d3.select('body').append('p').text('In this project, we examine the relationship between stress and exam performance by analyzing physiological signals from four dimensions: Heart Rate (HR), Electrodermal Activity (EDA), Temperature, and Accelerometer (ACC) data. By correlating these metrics with students’ test scores, we aim to find out how stress varies between individuals and how it might influence academic results.');
         break;
     case 1:
         removeAll();
