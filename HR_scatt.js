@@ -73,7 +73,7 @@ function linearRegression(data) {
     return { slope, intercept };
 }
 
-async function renderScatterPlot() {
+export async function renderScatterPlot() {
     const data = await loadData();
 
     const width = 1100;
@@ -322,7 +322,8 @@ async function renderScatterPlot() {
     }
 }
 
-const data = loadData();
-console.log(data);
+
+// const data = loadData();
+// console.log(data);
 
 renderScatterPlot();
