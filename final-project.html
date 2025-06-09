@@ -947,12 +947,12 @@
       }
     }
 
-    function createEnlargedChart(studentData, metric) {
+    async function createEnlargedChart(studentData, metric) {
       const svg = d3.select('#enlargedChart');
       svg.selectAll('*').remove();
-      
-      const data = generateTimeSeriesData(studentData.student, studentData.test, metric);
-      const minMaxData = generateMinMaxData(studentData.test, metric);
+
+      const data = await generateTimeSeriesData(studentData.student, studentData.test, metric);
+      const minMaxData = await generateMinMaxData(studentData.test, metric);
       const interestingMoments = findInterestingMoments(data, metric);
       
       const width = 600;
@@ -1214,9 +1214,9 @@
       });
     }
 
-    function updateStudentStats(studentData, metric) {
+    async function updateStudentStats(studentData, metric) {
       try {
-        const data = generateTimeSeriesData(studentData.student, studentData.test, metric);
+        const data = await generateTimeSeriesData(studentData.student, studentData.test, metric);
         const values = data.map(d => d[metric]);
         const inTestData = data.filter(d => d.period === 'in-test');
         const preTestData = data.filter(d => d.period === 'pre-test');
@@ -1250,71 +1250,143 @@
     }
 
     // Mock data that mimics the original CSV structure
-    const mockGrades = [
-      {students: 'S01', Midterm_1: 85, Midterm_2: 78, Final: 182},
-      {students: 'S02', Midterm_1: 92, Midterm_2: 88, Final: 180},
-      {students: 'S03', Midterm_1: 76, Midterm_2: 82, Final: 188},
-      {students: 'S04', Midterm_1: 89, Midterm_2: 85, Final: 149},
-      {students: 'S05', Midterm_1: 94, Midterm_2: 91, Final: 157},
-      {students: 'S06', Midterm_1: 72, Midterm_2: 75, Final: 175},
-      {students: 'S07', Midterm_1: 88, Midterm_2: 83, Final: 110},
-      {students: 'S08', Midterm_1: 91, Midterm_2: 87, Final: 184},
-      {students: 'S09', Midterm_1: 79, Midterm_2: 81, Final: 126},
-      {students: 'S10', Midterm_1: 86, Midterm_2: 84, Final: 116}
-    ];
+    const gradesData = {
+      'S1': { 'Midterm 1': 78, 'Midterm 2': 82, 'Final': 182 },
+      'S2': { 'Midterm 1': 82, 'Midterm 2': 85, 'Final': 180 },
+      'S3': { 'Midterm 1': 77, 'Midterm 2': 90, 'Final': 188 },
+      'S4': { 'Midterm 1': 75, 'Midterm 2': 77, 'Final': 149 },
+      'S5': { 'Midterm 1': 67, 'Midterm 2': 77, 'Final': 157 },
+      'S6': { 'Midterm 1': 71, 'Midterm 2': 64, 'Final': 175 },
+      'S7': { 'Midterm 1': 64, 'Midterm 2': 33, 'Final': 110 },
+      'S8': { 'Midterm 1': 92, 'Midterm 2': 88, 'Final': 184 },
+      'S9': { 'Midterm 1': 80, 'Midterm 2': 39, 'Final': 126 },
+      'S10': { 'Midterm 1': 89, 'Midterm 2': 64, 'Final': 116 }
+    };
+
+    // Data loading functions
+    async function loadRealData(student, test, metric) {
+      try {
+        const path = `dataset/S${student}_processed/${test}/${metric}.csv`;
+        const response = await fetch(path);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const csvText = await response.text();
+        const data = d3.csvParse(csvText, d => ({
+          time_seconds: +d.time_seconds,
+          [metric]: +d[metric],
+          period: d.period ? d.period.trim() : 'unknown',
+          timestamp: d.timestamp || ''
+        }));
+        
+        return data;
+      } catch (error) {
+        console.warn(`Failed to load real data for S${student}, ${test}, ${metric}:`, error);
+        return null;
+      }
+    }
+
+    async function loadMinMaxData(test, metric) {
+      try {
+        const path = `${metric}_min_max_${test}.csv`;
+        const response = await fetch(path);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const csvText = await response.text();
+        const data = d3.csvParse(csvText, d => ({
+          time_seconds: +d.time_seconds,
+          [`${metric}_min`]: +d[`${metric}_min`],
+          [`${metric}_max`]: +d[`${metric}_max`],
+          period: d.period ? d.period.trim() : 'unknown'
+        }));
+        
+        return data;
+      } catch (error) {
+        console.warn(`Failed to load min/max data for ${test}, ${metric}:`, error);
+        return null;
+      }
+    }
 
     // Data generation functions
-    function generateMetricData(metric) {
+    async function generateMetricData(metric) {
       const data = [];
       const studentCount = 10;
       const tests = ['Midterm 1', 'Midterm 2', 'Final'];
       
       for (let student = 1; student <= studentCount; student++) {
-        const studentId = student < 10 ? `S0${student}` : `S${student}`;
-        const gradeData = mockGrades.find(g => g.students === studentId);
+        const studentId = `S${student}`;
+        const gradeData = gradesData[studentId];
         
-        tests.forEach(test => {
-          let avgMetric, score;
+        for (const test of tests) {
+          // Try to load real data first
+          const realData = await loadRealData(student, test, metric);
           
-          // Generate realistic metric values with some correlation to performance
-          const baseStress = Math.random() * 0.5 + 0.5; // 0.5-1.0 stress factor
-          const performanceCorrelation = Math.random() * 0.6 - 0.3; // -0.3 to 0.3
+          let avgMetric;
+          let score;
           
-          if (test === 'Midterm 1') score = gradeData.Midterm_1;
-          else if (test === 'Midterm 2') score = gradeData.Midterm_2;
-          else score = gradeData.Final / 2;
+          if (test === 'Midterm 1') score = gradeData['Midterm 1'];
+          else if (test === 'Midterm 2') score = gradeData['Midterm 2'];
+          else score = gradeData['Final'] / 2; // Divide final by 2 as in original code
           
-          // Normalize score to 0-1 range for correlation
-          const normalizedScore = (score - 50) / 50;
-          
-          switch (metric) {
-            case 'HR':
-              avgMetric = 70 + baseStress * 25 + performanceCorrelation * normalizedScore * 15;
-              break;
-            case 'EDA':
-              avgMetric = 2 + baseStress * 8 - performanceCorrelation * normalizedScore * 3;
-              break;
-            case 'TEMP':
-              avgMetric = 36.2 + baseStress * 1.5 - performanceCorrelation * normalizedScore * 0.5;
-              break;
-            case 'ACC':
-              avgMetric = 0.1 + baseStress * 0.6 - performanceCorrelation * normalizedScore * 0.2;
-              break;
+          if (realData && realData.length > 0) {
+            // Use real data - calculate average for in-test period
+            const inTestData = realData.filter(d => d.period === 'in-test');
+            if (inTestData.length > 0) {
+              avgMetric = d3.mean(inTestData, d => d[metric]);
+            } else {
+              // Fallback to all data if no in-test period found
+              avgMetric = d3.mean(realData, d => d[metric]);
+            }
+          } else {
+            // Generate mock data as fallback
+            const baseStress = Math.random() * 0.5 + 0.5;
+            const performanceCorrelation = Math.random() * 0.6 - 0.3;
+            const normalizedScore = (score - 50) / 50;
+            
+            switch (metric) {
+              case 'HR':
+                avgMetric = 70 + baseStress * 25 + performanceCorrelation * normalizedScore * 15;
+                break;
+              case 'EDA':
+                avgMetric = 2 + baseStress * 8 - performanceCorrelation * normalizedScore * 3;
+                break;
+              case 'TEMP':
+                avgMetric = 36.2 + baseStress * 1.5 - performanceCorrelation * normalizedScore * 0.5;
+                break;
+              case 'ACC':
+                avgMetric = 0.1 + baseStress * 0.6 - performanceCorrelation * normalizedScore * 0.2;
+                break;
+            }
+            avgMetric = Math.max(0, avgMetric + (Math.random() - 0.5) * 2);
           }
           
           data.push({
             student: student,
             test: test,
-            [`avg_${metric}`]: Math.max(0, avgMetric + (Math.random() - 0.5) * 2),
+            [`avg_${metric}`]: avgMetric,
             score: score
           });
-        });
-      }
-      
-      return data;
+        }
+          
+          return data;
+        }
     }
 
-    function generateTimeSeriesData(student, test, metric) {
+    async function generateTimeSeriesData(student, test, metric) {
+      // Try to load real data first
+      const realData = await loadRealData(student, test, metric);
+      
+      if (realData && realData.length > 0) {
+        // Return real data if available
+        return realData;
+      }
+      
+      // Generate mock data as fallback (keep existing mock generation code below)
       const data = [];
       const duration = 3600; // 1 hour
       const points = 120;
@@ -1356,12 +1428,20 @@
     }
 
     // Generate min/max envelope data across all students
-    function generateMinMaxData(test, metric) {
+    async function generateMinMaxData(test, metric) {
+      // Try to load real min/max data first
+      const realMinMaxData = await loadMinMaxData(test, metric);
+      
+      if (realMinMaxData && realMinMaxData.length > 0) {
+        return realMinMaxData;
+      }
+      
+      // Generate mock min/max data as fallback (keep existing code below)
       const allStudentData = [];
       
       // Generate data for all 10 students
       for (let student = 1; student <= 10; student++) {
-        const studentData = generateTimeSeriesData(student, test, metric);
+        const studentData = await generateTimeSeriesData(student, test, metric);
         allStudentData.push(studentData);
       }
       
@@ -1813,12 +1893,12 @@
       }
     }
 
-    function createTimeSeriesPlot(containerId, student, test, metric) {
+    async function createTimeSeriesPlot(containerId, student, test, metric) {
       const svg = d3.select(`#${containerId}`);
       svg.selectAll('*').remove();
-      
-      const data = generateTimeSeriesData(student, test, metric);
-      const minMaxData = generateMinMaxData(test, metric);
+
+      const data = await generateTimeSeriesData(student, test, metric);
+      const minMaxData = await generateMinMaxData(test, metric);
       const interestingMoments = findInterestingMoments(data, metric);
       
       const width = 300;
@@ -2037,7 +2117,7 @@
         .text('All students range');
     }
 
-    function updateStudentDetails(studentData, metric) {
+    async function updateStudentDetails(studentData, metric) {
       try {
         const studentNameElement = document.querySelector(`#${metric.toLowerCase()}-student-name`);
         const testSvg = `${metric.toLowerCase()}-test`;
@@ -2046,7 +2126,7 @@
           studentNameElement.textContent = `Student ${studentData.student} - ${studentData.test}: Score ${studentData.score}`;
         }
         
-        createTimeSeriesPlot(testSvg, studentData.student, studentData.test, metric);
+        await createTimeSeriesPlot(testSvg, studentData.student, studentData.test, metric);
         
         // Add click handler to enlarge
         const timeSeriesElement = document.querySelector(`#${testSvg}`);
@@ -2075,7 +2155,7 @@
       }
     }
 
-    function resetVisualization(metric) {
+    async function resetVisualization(metric) {
       if (!metric) return;
       
       const chartId = `${metric}-chart`;
@@ -2103,7 +2183,7 @@
         d3.select(`#${chartId}`).selectAll('*').remove();
         
         // Recreate visualization
-        const data = generateMetricData(metric);
+        const data = await generateMetricData(metric);
         visualizations[metric] = createScatterPlot(chartId, data, metric);
       } catch (error) {
         console.error(`Error resetting ${metric} visualization:`, error);
@@ -2135,9 +2215,9 @@
         // Clear existing visualization first
         const chartContainer = document.querySelector(`#${metric}-chart`);
         if (chartContainer && !chartContainer.querySelector('svg')) {
-          setTimeout(() => {
+          setTimeout(async () => {
             try {
-              const data = generateMetricData(metric);
+              const data = await generateMetricData(metric);
               visualizations[metric] = createScatterPlot(`${metric}-chart`, data, metric);
             } catch (error) {
               console.error(`Error creating ${metric} visualization:`, error);
@@ -2501,16 +2581,6 @@
           </div>
           
           <div class="metric-card">
-            <div class="metric-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: var(--accent-blue);">
-              <i class="fas fa-balance-scale"></i>
-            </div>
-            <h3 class="metric-title">Optimal Stress Levels</h3>
-            <p class="metric-description">
-              Moderate stress can enhance performance, while high stress often impairs cognitive function
-            </p>
-          </div>
-          
-          <div class="metric-card">
             <div class="metric-icon" style="background: linear-gradient(135deg, #d1fae5, #6ee7b7); color: var(--accent-green);">
               <i class="fas fa-clock"></i>
             </div>
@@ -2520,4 +2590,75 @@
             </p>
           </div>
           
-          <div class
+          <div class="metric-card">
+            <div class="metric-icon" style="background: linear-gradient(135deg, #fee2e2, #fca5a5); color: var(--accent-red);">
+              <i class="fas fa-lightbulb"></i>
+            </div>
+            <h3 class="metric-title">Actionable Insights</h3>
+            <p class="metric-description">
+              Real-time monitoring can help develop targeted stress management strategies for improved outcomes
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal for enlarged student data -->
+  <div class="modal-overlay" id="studentModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Student Data Analysis</h3>
+        <button class="modal-close" onclick="closeStudentModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="student-details">
+          <div class="chart-section">
+            <svg class="enlarged-chart" id="enlargedChart"></svg>
+          </div>
+          <div class="stats-section">
+            <div class="stat-item">
+              <div class="stat-label">Average Value</div>
+              <div class="stat-value" id="avgValue">--</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Peak Value</div>
+              <div class="stat-value" id="peakValue">--</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Min Value</div>
+              <div class="stat-value" id="minValue">--</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Stress Increase</div>
+              <div class="stat-value" id="stressIncrease">--</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Recovery Rate</div>
+              <div class="stat-value" id="recoveryRate">--</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="slide-nav">
+    <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <div class="slide-counter">
+      <span id="currentSlide">1</span> / <span id="totalSlides">6</span>
+    </div>
+    <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+
+  <!-- Tooltip -->
+  <div class="tooltip"></div>
+</body>
+</html>
