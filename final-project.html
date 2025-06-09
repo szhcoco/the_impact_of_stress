@@ -1368,18 +1368,16 @@
     .fact-number {
       font-size: 1.8rem;
       font-weight: 900;
-      color: white;
+      color: linear-gradient(35deg, var(--accent-red), var(--accent-yellow));
       line-height: 1;
       margin-bottom: 0.25rem;
       background: linear-gradient(135deg, #ffffff, #e2e8f0);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
       background-clip: text;
     }
 
     .fact-text {
       font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.9);
+      color: rgba(189, 159, 87, 0.9);
       font-weight: 500;
     }
 
@@ -1657,7 +1655,7 @@
       <i class="fas fa-chevron-left"></i>
     </button>
     <div class="slide-counter">
-      <span id="currentSlide">1</span> / <span id="totalSlides">6</span>
+    <span id="currentSlide">1</span> / <span id="totalSlides">7</span>
     </div>
     <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">
       <i class="fas fa-chevron-right"></i>
@@ -2995,9 +2993,9 @@
       updateNavigation(slideIndex);
       
       // Load visualizations when needed
-      if (slideIndex >= 1 && slideIndex <= 4) {
+      if (slideIndex >= 2 && slideIndex <= 5) {
         const metrics = ['HR', 'EDA', 'TEMP', 'ACC'];
-        const metric = metrics[slideIndex - 1];
+        const metric = metrics[slideIndex - 2];
         
         // Clear existing visualization first
         const chartContainer = document.querySelector(`#${metric}-chart`);
@@ -3085,103 +3083,134 @@
 
   <!-- Slide 0: Introduction -->
   <section class="slide active" data-index="0">
+    
     <!-- Fun Facts Section -->
-          <div class="fun-facts-grid">
-            <div class="fun-fact-card" style="animation-delay: 0s;">
-              <div class="fact-icon">
-                <i class="fas fa-heartbeat"></i>
-              </div>
-              <div class="fact-content">
-                <div class="fact-number">2.4 billion</div>
-                <div class="fact-text">heartbeats in an average college career</div>
-              </div>
-            </div>
-            <div class="fun-fact-card" style="animation-delay: 0.2s;">
-              <div class="fact-icon">
-                <i class="fas fa-lightning-bolt"></i>
-              </div>
-              <div class="fact-content">
-                <div class="fact-number">37°C</div>
-                <div class="fact-text">optimal brain temperature for peak performance</div>
-              </div>
-            </div>
-            <div class="fun-fact-card" style="animation-delay: 0.4s;">
-              <div class="fact-icon">
-                <i class="fas fa-clock"></i>
-              </div>
-              <div class="fact-content">
-                <div class="fact-number">15 min</div>
-                <div class="fact-text">time for stress hormones to peak</div>
-              </div>
-            </div>
-            <div class="fun-fact-card" style="animation-delay: 0.6s;">
-              <div class="fact-icon">
-                <i class="fas fa-graduation-cap"></i>
-              </div>
-              <div class="fact-content">
-                <div class="fact-number">85%</div>
-                <div class="fact-text">of students experience test anxiety</div>
-              </div>
-            </div>
-          </div>
-
-    <div class="section">
-      <div class="container">
-        <div class="section-header">
-          <h2 class="section-title">Research Overview</h2>
-          <p class="section-subtitle">
-            Stress significantly impacts academic performance, but the relationship is complex and varies between individuals. 
-            This analysis examines physiological stress markers to understand their correlation with exam scores.
-          </p>
+    <div class="fun-facts-grid">
+      
+      <div class="fun-fact-card" style="animation-delay: 0s;">
+        <div class="fact-icon">
+          <i class="fas fa-heartbeat"></i>
         </div>
-
-        <div class="metrics-grid">
-          <div class="metric-card" data-metric="hr">
-            <div class="metric-icon">
-              <i class="fas fa-heartbeat"></i>
-            </div>
-            <h3 class="metric-title">Heart Rate Variability</h3>
-            <p class="metric-description">
-              Cardiovascular response to stress and cognitive load during examinations
-            </p>
-          </div>
-          
-          <div class="metric-card" data-metric="eda">
-            <div class="metric-icon">
-              <i class="fas fa-bolt"></i>
-            </div>
-            <h3 class="metric-title">Electrodermal Activity</h3>
-            <p class="metric-description">
-              Skin conductance reflecting emotional arousal and stress responses
-            </p>
-          </div>
-          
-          <div class="metric-card" data-metric="temp">
-            <div class="metric-icon">
-              <i class="fas fa-thermometer-half"></i>
-            </div>
-            <h3 class="metric-title">Body Temperature</h3>
-            <p class="metric-description">
-              Thermal regulation changes in response to psychological stress
-            </p>
-          </div>
-          
-          <div class="metric-card" data-metric="acc">
-            <div class="metric-icon">
-              <i class="fas fa-running"></i>
-            </div>
-            <h3 class="metric-title">Physical Movement</h3>
-            <p class="metric-description">
-              Fidgeting and movement patterns indicating restlessness and anxiety
-            </p>
-          </div>
+        <div class="fact-content">
+          <div class="fact-number">2.4 billion</div>
+          <div class="fact-text">heartbeats in an average college career</div>
+        </div>
+      </div>
+      <div class="fun-fact-card" style="animation-delay: 0.2s;">
+        <div class="fact-icon">
+          <i class="fas fa-lightning-bolt"></i>
+        </div>
+        <div class="fact-content">
+          <div class="fact-number">37°C</div>
+          <div class="fact-text">optimal brain temperature for peak performance</div>
+        </div>
+      </div>
+      <div class="fun-fact-card" style="animation-delay: 0.4s;">
+        <div class="fact-icon">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="fact-content">
+          <div class="fact-number">15 min</div>
+          <div class="fact-text">time for stress hormones to peak</div>
+        </div>
+      </div>
+      <div class="fun-fact-card" style="animation-delay: 0.6s;">
+        <div class="fact-icon">
+          <i class="fas fa-graduation-cap"></i>
+        </div>
+        <div class="fact-content">
+          <div class="fact-number">85%</div>
+          <div class="fact-text">of students experience test anxiety</div>
         </div>
       </div>
     </div>
+
+    <div class="attention-grabber">
+      <div class="floating-question">
+        <i class="fas fa-brain brain-pulse"></i>
+        <span class="question-text" style="color: rgb(41, 88, 69);">What if we could predict exam performance from a heartbeat?</span>
+      </div>
+      <div class="animated-stats">
+        <div class="pulse-indicator">
+          <div class="pulse-ring"></div>
+          <div class="pulse-ring pulse-ring-delay-1"></div>
+          <div class="pulse-ring pulse-ring-delay-2"></div>
+          <span class="pulse-bpm">85 BPM</span>
+        </div>
+        <div class="stress-arrow">
+          <i class="fas fa-arrow-right"></i>
+          <span>STRESS</span>
+        </div>
+        <div class="grade-display">
+          <div class="grade-number grade-animate">92</div>
+          <span class="grade-label">SCORE</span>
+        </div>
+      </div>
+    </div>
+
   </section>
 
   <!-- Slide 1: Project Overview -->
   <section class="slide" data-index="1">
+    <div class="hero">
+      <div class="container">
+        <div class="hero-content">
+          
+          <h1 class="hero-title">Decoding Academic Stress</h1>
+          <p class="hero-subtitle">
+            Every second, your body tells a story about stress, focus, and performance. 
+            We're listening to what it has to say about academic success.
+          </p>
+          
+          <div class="hook-statement">
+            <div class="hook-icon">
+              <i class="fas fa-lightbulb"></i>
+            </div>
+            <p class="hook-text">
+              During exams, students' heart rates can increase by 40%, skin conductance spikes 300%, 
+              and body temperature rises 0.8°C. But which patterns predict success?
+            </p>
+          </div>
+          
+          <div class="hero-stats">
+            <div class="stat-card">
+              <span class="stat-number">10</span>
+              <span class="stat-label">Students</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number">4</span>
+              <span class="stat-label">Metrics</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number">3</span>
+              <span class="stat-label">Exams</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number">30</span>
+              <span class="stat-label">Data Points</span>
+            </div>
+          </div>
+
+          <div class="interactive-demo">
+          <div class="brain-model">
+            <div class="brain-container">
+              <div class="brain-hemisphere brain-left">
+                <div class="neural-activity" style="animation-delay: 0s;"></div>
+                <div class="neural-activity" style="animation-delay: 0.5s;"></div>
+                <div class="neural-activity" style="animation-delay: 1s;"></div>
+              </div>
+              <div class="brain-hemisphere brain-right">
+                <div class="neural-activity" style="animation-delay: 0.3s;"></div>
+                <div class="neural-activity" style="animation-delay: 0.8s;"></div>
+                <div class="neural-activity" style="animation-delay: 1.3s;"></div>
+              </div>
+            </div>
+            <div class="brain-caption">Neural Activity During Stress</div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
     <div class="section">
       <div class="container">
         <div class="hero-stats">
