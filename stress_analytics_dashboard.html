@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Academic Stress Analytics</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <div class="logo-icon">
+            <i class="fas fa-heartbeat"></i>
+          </div>
+          <div class="logo-text">Academic Stress Analytics</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Progress -->
+  <div class="nav-progress">
+    <div class="nav-dot active" data-section="0" data-label="Introduction"></div>
+    <div class="nav-dot" data-section="1" data-label="Heart Rate"></div>
+    <div class="nav-dot" data-section="2" data-label="Skin Conductance"></div>
+    <div class="nav-dot" data-section="3" data-label="Temperature"></div>
+    <div class="nav-dot" data-section="4" data-label="Movement"></div>
+    <div class="nav-dot" data-section="5" data-label="Conclusions"></div>
+  </div>
+
+  <!-- Slide 0: Introduction -->
+  <section class="slide active" data-index="0">
+    <div class="hero">
+      <div class="container">
+        <div class="hero-content">
+          <h1 class="hero-title">Decoding Academic Stress</h1>
+          <p class="hero-subtitle">
+            Understanding how physiological responses correlate with exam performance through comprehensive biometric analysis
+          </p>
+          
+          <div class="hero-stats">
+            <div class="stat-card">
+              <span class="stat-number">10</span>
+              <span class="stat-label">Students</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number">4</span>
+              <span class="stat-label">Metrics</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number">3</span>
+              <span class="stat-label">Exams</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number">30</span>
+              <span class="stat-label">Data Points</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Research Overview</h2>
+          <p class="section-subtitle">
+            Stress significantly impacts academic performance, but the relationship is complex and varies between individuals. 
+            This analysis examines physiological stress markers to understand their correlation with exam scores.
+          </p>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card" data-metric="hr">
+            <div class="metric-icon">
+              <i class="fas fa-heartbeat"></i>
+            </div>
+            <h3 class="metric-title">Heart Rate Variability</h3>
+            <p class="metric-description">
+              Cardiovascular response to stress and cognitive load during examinations
+            </p>
+          </div>
+          
+          <div class="metric-card" data-metric="eda">
+            <div class="metric-icon">
+              <i class="fas fa-bolt"></i>
+            </div>
+            <h3 class="metric-title">Electrodermal Activity</h3>
+            <p class="metric-description">
+              Skin conductance reflecting emotional arousal and stress responses
+            </p>
+          </div>
+          
+          <div class="metric-card" data-metric="temp">
+            <div class="metric-icon">
+              <i class="fas fa-thermometer-half"></i>
+            </div>
+            <h3 class="metric-title">Body Temperature</h3>
+            <p class="metric-description">
+              Thermal regulation changes in response to psychological stress
+            </p>
+          </div>
+          
+          <div class="metric-card" data-metric="acc">
+            <div class="metric-icon">
+              <i class="fas fa-running"></i>
+            </div>
+            <h3 class="metric-title">Physical Movement</h3>
+            <p class="metric-description">
+              Fidgeting and movement patterns indicating restlessness and anxiety
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slides 1-4: Metrics -->
+  <section class="slide" data-index="1">
+    <div class="section">
+      <div class="container">
+        <div class="viz-container">
+          <div class="viz-header">
+            <h2 class="viz-title">Heart Rate Analysis</h2>
+            <div class="viz-controls">
+              <button class="control-btn" onclick="resetVisualization('HR')">Reset</button>
+            </div>
+          </div>
+          <div class="viz-content">
+            <div class="chart-panel">
+              <div id="HR-chart"></div>
+            </div>
+            <div class="details-panel">
+              <div class="instructions">
+                <div class="instructions-title">
+                  <i class="fas fa-pencil-alt"></i>
+                  Instructions
+                </div>
+                <div class="instructions-text">
+                  Draw a line to predict the relationship between heart rate and exam scores. 
+                  Click and drag across the chart area.
+                </div>
+              </div>
+              
+              <div class="student-card">
+                <div class="student-name" id="hr-student-name">Click on a data point to explore</div>
+                <div style="position: relative;">
+                  <svg class="time-series-container" id="hr-test"></svg>
+                  <div class="expand-hint">Click to enlarge</div>
+                </div>
+              </div>
+              
+              <div class="feedback-box" id="hr-feedback"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-index="2">
+    <div class="section">
+      <div class="container">
+        <div class="viz-container">
+          <div class="viz-header">
+            <h2 class="viz-title">Electrodermal Activity Analysis</h2>
+            <div class="viz-controls">
+              <button class="control-btn" onclick="resetVisualization('EDA')">Reset</button>
+            </div>
+          </div>
+          <div class="viz-content">
+            <div class="chart-panel">
+              <div id="EDA-chart"></div>
+            </div>
+            <div class="details-panel">
+              <div class="instructions">
+                <div class="instructions-title">
+                  <i class="fas fa-pencil-alt"></i>
+                  Instructions
+                </div>
+                <div class="instructions-text">
+                  Draw a line to predict the relationship between skin conductance and exam scores.
+                </div>
+              </div>
+              
+              <div class="student-card">
+                <div class="student-name" id="eda-student-name">Click on a data point to explore</div>
+                <div style="position: relative;">
+                  <svg class="time-series-container" id="eda-test"></svg>
+                  <div class="expand-hint">Click to enlarge</div>
+                </div>
+              </div>
+              
+              <div class="feedback-box" id="eda-feedback"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-index="3">
+    <div class="section">
+      <div class="container">
+        <div class="viz-container">
+          <div class="viz-header">
+            <h2 class="viz-title">Temperature Analysis</h2>
+            <div class="viz-controls">
+              <button class="control-btn" onclick="resetVisualization('TEMP')">Reset</button>
+            </div>
+          </div>
+          <div class="viz-content">
+            <div class="chart-panel">
+              <div id="TEMP-chart"></div>
+            </div>
+            <div class="details-panel">
+              <div class="instructions">
+                <div class="instructions-title">
+                  <i class="fas fa-pencil-alt"></i>
+                  Instructions
+                </div>
+                <div class="instructions-text">
+                  Draw a line to predict the relationship between body temperature and exam scores.
+                </div>
+              </div>
+              
+              <div class="student-card">
+                <div class="student-name" id="temp-student-name">Click on a data point to explore</div>
+                <div style="position: relative;">
+                  <svg class="time-series-container" id="temp-test"></svg>
+                  <div class="expand-hint">Click to enlarge</div>
+                </div>
+              </div>
+              
+              <div class="feedback-box" id="temp-feedback"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-index="4">
+    <div class="section">
+      <div class="container">
+        <div class="viz-container">
+          <div class="viz-header">
+            <h2 class="viz-title">Movement Analysis</h2>
+            <div class="viz-controls">
+              <button class="control-btn" onclick="resetVisualization('ACC')">Reset</button>
+            </div>
+          </div>
+          <div class="viz-content">
+            <div class="chart-panel">
+              <div id="ACC-chart"></div>
+            </div>
+            <div class="details-panel">
+              <div class="instructions">
+                <div class="instructions-title">
+                  <i class="fas fa-pencil-alt"></i>
+                  Instructions
+                </div>
+                <div class="instructions-text">
+                  Draw a line to predict the relationship between movement patterns and exam scores.
+                </div>
+              </div>
+              
+              <div class="student-card">
+                <div class="student-name" id="acc-student-name">Click on a data point to explore</div>
+                <div style="position: relative;">
+                  <svg class="time-series-container" id="acc-test"></svg>
+                  <div class="expand-hint">Click to enlarge</div>
+                </div>
+              </div>
+              
+              <div class="feedback-box" id="acc-feedback"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 5: Conclusions -->
+  <section class="slide" data-index="5">
+    <div class="section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Key Findings</h2>
+          <p class="section-subtitle">
+            Our analysis reveals complex relationships between physiological stress markers and academic performance
+          </p>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-icon" style="background: linear-gradient(135deg, #fef3c7, #fcd34d); color: var(--accent-yellow);">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <h3 class="metric-title">Individual Variation</h3>
+            <p class="metric-description">
+              Stress responses vary significantly between students, requiring personalized approaches
+            </p>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: var(--accent-blue);">
+              <i class="fas fa-balance-scale"></i>
+            </div>
+            <h3 class="metric-title">Optimal Stress Levels</h3>
+            <p class="metric-description">
+              Moderate stress can enhance performance, while high stress often impairs cognitive function
+            </p>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-icon" style="background: linear-gradient(135deg, #d1fae5, #6ee7b7); color: var(--accent-green);">
+              <i class="fas fa-clock"></i>
+            </div>
+            <h3 class="metric-title">Temporal Patterns</h3>
+            <p class="metric-description">
+              Stress responses change throughout the exam period, with distinct pre-, during-, and post-test phases
+            </p>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-icon" style="background: linear-gradient(135deg, #fee2e2, #fca5a5); color: var(--accent-red);">
+              <i class="fas fa-lightbulb"></i>
+            </div>
+            <h3 class="metric-title">Actionable Insights</h3>
+            <p class="metric-description">
+              Real-time monitoring can help develop targeted stress management strategies for improved outcomes
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal for enlarged student data -->
+  <div class="modal-overlay" id="studentModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Student Data Analysis</h3>
+        <button class="modal-close" onclick="closeStudentModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="student-details">
+          <div class="chart-section">
+            <svg class="enlarged-chart" id="enlargedChart"></svg>
+          </div>
+          <div class="stats-section">
+            <div class="stat-item">
+              <div class="stat-label">Average Value</div>
+              <div class="stat-value" id="avgValue">--</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Peak Value</div>
+              <div class="stat-value" id="peakValue">--</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Min Value</div>
+              <div class="stat-value" id="minValue">--</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Stress Increase</div>
+              <div class="stat-value" id="stressIncrease">--</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Recovery Rate</div>
+              <div class="stat-value" id="recoveryRate">--</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="slide-nav">
+    <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <div class="slide-counter">
+      <span id="currentSlide">1</span> / <span id="totalSlides">6</span>
+    </div>
+    <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+
+  <!-- Tooltip -->
+  <div class="tooltip"></div>
+
+  <script src="main.js"></script>
+</body>
+</html>
