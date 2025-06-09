@@ -33,6 +33,7 @@ html, body {
   overflow-y: scroll;
   margin: 0;
   padding: 0;
+  font-family: 'Montserrat', sans-serif;
 }
 
 body {
@@ -300,6 +301,7 @@ header {
   color: #333;
 }
 
+
 .chart-container {
   background: #fff;
   border-radius: 10px;
@@ -349,3 +351,5 @@ header {
     font-size: 1.3rem;
   }
 }
+
+

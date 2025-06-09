@@ -119,10 +119,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
   sections.forEach(sec => observer.observe(sec));
 
-  document.querySelectorAll('.scroll-indicator').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const target = document.querySelector(btn.dataset.target);
-      if (target) target.scrollIntoView({ behavior: 'smooth' });
+  document.querySelectorAll('.scroll-indicator').forEach(indicator => {
+    indicator.addEventListener('click', () => {
+      const targetSelector = indicator.getAttribute('data-target');
+      const targetElem = document.querySelector(targetSelector);
+      targetElem.scrollIntoView({ behavior: 'smooth' });
+      if (targetSelector === '#slides') {
+        // clear any previous slide state
+        document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+        // show the Heart-Rate slide (data-index="1")
+        document.querySelector('.slide[data-index="1"]').classList.add('active');
+      }
     });
   });
+
+  HR_scatt.renderScatterPlot();
+  EDA_scatt.renderScatterPlot();
+  TEMP_scatt.renderScatterPlot();
+  ACC_scatt.renderScatterPlot();
 });
