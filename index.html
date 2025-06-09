@@ -345,7 +345,7 @@
             <div class="writeup-section key-findings">
               <h4><i class="fas fa-search"></i> Key Findings</h4>
               <p>Heart rate (HR) serves as a primary indicator of physiological state during exams. It is influenced by various factors, including cognitive load, emotional state, and environmental conditions, and thus bears the potential to provide insights into student performance.</p>
-              <p>Our analysis shows that there is a positive correlation between average heart rate and grades. Top-performing students may be more engaged or focused during exams, leading to a higher HR. Alternatively, students who are too relaxed (low HR) might not be as focused, hurting their academic performance.</p>
+              <p>Our analysis shows that there is a moderate positive correlation between average heart rate and grades. Top-performing students may be more engaged or focused during exams, leading to a higher HR. Alternatively, students who are too relaxed (low HR) might not be as focused, hurting their academic performance.</p>
             </div>
             <div class="writeup-section clinical-relevance">
               <h4><i class="fas fa-stethoscope"></i> Suggestion & Discussion</h4>
@@ -402,8 +402,8 @@
           <div class="writeup-content">
             <div class="writeup-section key-findings">
               <h4><i class="fas fa-search"></i> Key Findings</h4>
-              <p>Electrodermal activity (EDA) reflects sympathetic nervous system activation and emotional arousal. Students demonstrate significant EDA spikes during exam. By visualizing and analyzing the data, we found a negative correlation between average electrodermal activity (EDA) during exams and students’ grades. This suggests that physiological arousal, as measured by average EDA, negatively impacts academic performance in an exam setting.</p>
-              <p>This fits our intuition: Exam anxiety can hurt performance (e.g., interfering with memory retrieval, focus, or decision-making).</p>
+              <p>Electrodermal activity (EDA) reflects sympathetic nervous system activation and emotional arousal. EDA captures both fast phasic responses (electrodermal responses, EDRs) and slower tonic shifts (skin conductance level, SCL) on a second‐by‐second basis.</p>
+              <p>Students demonstrate significant EDA spikes during exam. By visualizing and analyzing the data, we found a weak negative correlation between average electrodermal activity (EDA) during exams and students’ grades. This surprisingly suggests that this well-established pressure indicator's relationship may not hold in all contexts.</p>
             </div>
             <div class="writeup-section clinical-relevance">
               <h4><i class="fas fa-microscope"></i>	Suggestion & Discussion</h4>
@@ -517,12 +517,13 @@
           <div class="writeup-content">
             <div class="writeup-section key-findings">
               <h4><i class="fas fa-search"></i> Key Findings</h4>
-              <p>Physical movement and fidgeting patterns provide insight into anxiety and restlessness levels. But surprisingly, we found there is a slight positive correlation between ACC (Accelerometer) and grades. This suggests that increased physical movement may be associated with higher academic performance.
-                It is opposite to our expectation. We expect students who don’t know what to do to move more often. This pattern may suggest that students tend to have some slight movements when they are thinking hard.</p>
+              <p>Physical movement and fidgeting patterns provide insight into anxiety and restlessness levels. But surprisingly, we found there is a weak positive correlation between ACC (Accelerometer) and grades. This suggests that the academic performance is not essentially related to the movements of students in exams.</p>
+              <p>Opposing to our initial speculation that students who don’t know what to do to move more often.</p>
             </div>
             <div class="writeup-section clinical-relevance">
               <h4><i class="fas fa-brain"></i> Suggestion & Discussion</h4>
-              <p>The positive correlation between ACC and grades suggests that students who exhibit more physical movement during testing tend to have better academic performance. This increased movement could be a manifestation of thinking. But as every data scientist knows, we still need further future research to prove this because of the lack of samples in the current project and the potential existence of the third cause.</p>
+              <p>However, since aggregating motion data loses a lot patterns, we strongly suggest follow-up researches could focus on potential patterns in the time-series data.</p>
+              <p>Also, since ACC measures the acceleration of movement, it may not fully capture the complexity of students' physical behaviors during exams.For example, we could analyze the frequency of movements, the intensity of movements, or even the specific types of movements (e.g., tapping, shifting) to see if they correlate with stress levels or performance. This could provide a more nuanced understanding of how physical behavior relates to cognitive states during exams.</p>
             </div>
           </div>
         </div>
@@ -664,12 +665,12 @@
           </div>
 
           <div class="story-section">
-            <h4 class="story-section-title">Sweat, Stress, and the Power of EDA</h4>
+            <h4 class="story-section-title">Powerful or Powerless? The power of EDA</h4>
             <p class="story-text">
-              Next, we turned our attention to electrodermal activity (EDA), which is the measure of your skin's response to stress. During exams, EDA often spikes, and our data showed a clear trend: <span class="story-highlight">students with higher average EDA tended to have lower grades</span>. In other words, too much stress, felt as sweaty palms or nervous tingles, can get in the way of clear thinking and recall.
+              Next, we turned our attention to electrodermal activity (EDA), which is the measure of your skin's response to stress. During exams, EDA often spikes. However, despite the long-established view that EDA is one of the most direct indicator of stress-related responses, our data of exams showed <span class="story-highlight">Little Correlation</span> with students' grades. In other words, the complexity of stress in different context remains underdiscovered.
             </p>
             <p class="story-text">
-              Still, there's a sweet spot. Some arousal is good, even necessary, for peak performance (Yerkes-Dodson Law), but when it tips into anxiety, performance suffers. Future research could dig deeper, looking not just at averages, but at how EDA rises and falls during especially tough questions—perhaps revealing moments where the pressure gets to be too much.
+              Still, there's prior research stating that <span class="story-highlight">some arousal is good</span>, even necessary, for peak performance (Yerkes-Dodson Law), but when it tips into anxiety, performance suffers. Future research could dig deeper, looking not just at averages, but at how EDA rises and falls during especially tough questions—perhaps revealing moments where the pressure gets to be too much.
             </p>
           </div>
 
@@ -686,14 +687,15 @@
               Finally, we looked at movement. The accelerometer told us: <span class="story-highlight">students who moved around more during exams generally earned higher grades</span>. Different from our intuition, the movement might not be fully a sign of restlessness, distraction, or anxiety. Instead, it might also relate to hard thinking.
             </p>
             <p class="story-text">
-              Teachers and educators might watch for these patterns, stepping in to offer support to students who just can't seem to sit still, perhaps through deep breath or short meditation exercises.
+              However, since the aggregated data does not capture individual patterns in the time series data, teachers and educators might watch for closer studies that captures patterns, stepping in to offer support to students who just can't seem to sit still, perhaps through deep breath or short meditation exercises.
             </p>
           </div>
 
           <div class="story-summary-section">
             <div class="story-summary-title">In Summary:</div>
             <p class="story-text">
-              Our bodies whisper clues about how we're coping with academic pressure. <span class="story-highlight">A little stress is good when it sharpens our minds and readies us for challenge</span>. But too much, whether it shows up as sweaty palms or restless legs, can cloud our thinking and hold us back.
+              Our bodies whisper clues about how we're coping with academic pressure. <span class="story-highlight">A little stress is good when it sharpens our minds and readies us for challenge</span>. Just like the nonnegligible positive correlation between grades and heart rate, sometimes feeling heart beating in the middle of exam could be a good news! 
+              But don't get it overboard, prior research has shown that whether it shows up as sweaty palms or restless legs, can cloud our thinking and hold us back.
             </p>
             <div class="story-quote">
               The art lies in finding the right balance: engaged, but not overwhelmed; alert, but not anxious. Future studies might reveal even more about these hidden signals, helping every student unlock their best performance.
