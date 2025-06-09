@@ -844,9 +844,10 @@
     /* Slides */
     .slide {
       display: none;
-      min-height: calc(100vh - 4rem);
+      min-height: 100vh;
       padding-top: 4rem;
-      overflow-y: auto; /* Allow vertical scrolling within slides */
+      overflow-y: auto;
+      position: relative;
     }
 
     .slide.active {
@@ -3109,11 +3110,12 @@
         targetSlide.classList.add('active');
       }
       
-      // Scroll to top of the page when changing slides
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
+      // Immediately scroll to top with no animation to avoid conflicts
+      window.scrollTo(0, 0);
+      
+      // Also ensure body scroll is reset
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
       
       updateNavigation(slideIndex);
 
@@ -3149,7 +3151,18 @@
       const newSlide = currentSlide + direction;
       if (newSlide >= 0 && newSlide < totalSlides) {
         currentSlide = newSlide;
+        
+        // Force scroll to top before showing new slide
+        window.scrollTo(0, 0);
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+        
         showSlide(currentSlide);
+        
+        // Ensure we stay at top after slide transition
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+        }, 100);
       }
     }
 
@@ -3177,6 +3190,11 @@
 
     // Initialize
     document.addEventListener('DOMContentLoaded', function() {
+      // Ensure we start at the top of the page
+      window.scrollTo(0, 0);
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+      history.scrollRestoration = 'manual';
       // Set up navigation dots
       document.querySelectorAll('.nav-dot').forEach((dot, index) => {
         dot.addEventListener('click', function() {
