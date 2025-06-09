@@ -1088,13 +1088,13 @@ async function createTimeSeriesPlot(containerId, student, test, metric) {
 
     // Add background periods
     const periods = test === 'Final' ? [
-    { name: 'pre-test', start: -300, end: 0 },
-    { name: 'in-test', start: 0, end: 5400 },
-    { name: 'post-test', start: 5400, end: 5700 }
-    ] : [
     { name: 'pre-test', start: -300, end: 0, label: 'Pre-Test' },
     { name: 'in-test', start: 0, end: 10800, label: 'During Test' },
     { name: 'post-test', start: 10800, end: 11100, label: 'Post-Test' }
+    ] : [
+    { name: 'pre-test', start: -300, end: 0 },
+    { name: 'in-test', start: 0, end: 5400 },
+    { name: 'post-test', start: 5400, end: 5700 }
     ];
 
     periods.forEach(period => {
