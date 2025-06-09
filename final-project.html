@@ -732,7 +732,6 @@
 
     .stat-label {
       font-size: 0.75rem;
-      color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
       margin-bottom: 0.25rem;
@@ -819,20 +818,34 @@
   <header>
     <div class="container">
       <div class="header-content">
+        <div class="header-decoration-left">
+          <div class="floating-icon">
+            <i class="fas fa-brain"></i>
+          </div>
+          <div class="floating-icon delay-1">
+            <i class="fas fa-chart-line"></i>
+          </div>
+        </div>
+        
         <div class="logo">
-          <div class="metric-card">
-            <div class="metric-icon" style="background: linear-gradient(135deg, #fee2e2, #fca5a5); color: var(--accent-red);">
-              <i class="fas fa-lightbulb"></i>
-            </div>
-            <h3 class="metric-title">Actionable Insights</h3>
-            <p class="metric-description">
-              Real-time monitoring can help develop targeted stress management strategies for improved outcomes
-            </p>
+          <div class="logo-icon">
+            <i class="fas fa-heartbeat"></i>
+          </div>
+          <div class="logo-text">Academic Stress Analytics</div>
+          <div class="logo-subtitle">Physiological Insights for Educational Excellence</div>
+        </div>
+        
+        <div class="header-decoration-right">
+          <div class="floating-icon delay-2">
+            <i class="fas fa-microscope"></i>
+          </div>
+          <div class="floating-icon delay-3">
+            <i class="fas fa-graduation-cap"></i>
           </div>
         </div>
       </div>
     </div>
-  </section>
+  </header>
 
   <!-- Modal for enlarged student data -->
   <div class="modal-overlay" id="studentModal">
@@ -2285,16 +2298,6 @@
       updateNavigation(currentSlide);
     });
   </script>
-</body>
-</html>="logo-icon">
-            <i class="fas fa-heartbeat"></i>
-          </div>
-          <div class="logo-text">Academic Stress Analytics</div>
-        </div>
-      </div>
-    </div>
-  </header>
-
   <!-- Navigation Progress -->
   <div class="nav-progress">
     <div class="nav-dot active" data-section="0" data-label="Introduction"></div>
@@ -2645,18 +2648,6 @@
     </div>
   </div>
 
-  <!-- Navigation -->
-  <div class="slide-nav">
-    <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">
-      <i class="fas fa-chevron-left"></i>
-    </button>
-    <div class="slide-counter">
-      <span id="currentSlide">1</span> / <span id="totalSlides">6</span>
-    </div>
-    <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">
-      <i class="fas fa-chevron-right"></i>
-    </button>
-  </div>
 
   <!-- Tooltip -->
   <div class="tooltip"></div>
