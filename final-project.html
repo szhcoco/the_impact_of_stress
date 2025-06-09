@@ -1865,11 +1865,18 @@
         .range(['var(--pre-test)', 'var(--in-test)', 'var(--post-test)']);
 
       // Add background periods with labels
-      const periods = [
+      let periods = [
         { name: 'pre-test', start: -300, end: 0, label: 'Pre-Test' },
         { name: 'in-test', start: 0, end: 5400, label: 'During Test' },
         { name: 'post-test', start: 5400, end: 5700, label: 'Post-Test' }
       ];
+      if (studentData.test === 'Final') {
+        periods = [
+          { name: 'pre-test', start: -300, end: 0, label: 'Pre-Test' },
+          { name: 'in-test', start: 0, end: 10800, label: 'During Test' },
+          { name: 'post-test', start: 10800, end: 11100, label: 'Post-Test' }
+        ];
+      }
 
       periods.forEach(period => {
         svg.append('rect')
@@ -2851,10 +2858,14 @@
         .range(['var(--pre-test)', 'var(--in-test)', 'var(--post-test)']);
 
       // Add background periods
-      const periods = [
-        { name: 'pre-test', start: -300, end: 0 },
-        { name: 'in-test', start: 0, end: 5400 },
-        { name: 'post-test', start: 5400, end: 5700 }
+      const periods = test === 'Final' ? [
+        { name: 'pre-test', start: -300, end: 0 },
+        { name: 'in-test', start: 0, end: 5400 },
+        { name: 'post-test', start: 5400, end: 5700 }
+      ] : [
+        { name: 'pre-test', start: -300, end: 0, label: 'Pre-Test' },
+        { name: 'in-test', start: 0, end: 10800, label: 'During Test' },
+        { name: 'post-test', start: 10800, end: 11100, label: 'Post-Test' }
       ];
 
       periods.forEach(period => {
