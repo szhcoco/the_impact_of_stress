@@ -396,7 +396,7 @@ async function loadRealData(student, test, metric) {
     
     // Significantly reduce ACC data points for faster loading
     if (metric === 'ACC') {
-        data = data.filter((_, i) => i % 500 === 0); // Take every 500th point instead of 200th
+        data = data.filter((_, i) => i % 20 === 0); // Take every 500th point instead of 200th
     }
         if (metric === 'TEMP') {
           data = data.filter((_, i) => i % 20 === 0);
@@ -431,7 +431,7 @@ async function loadMinMaxData(test, metric) {
 
     // Significantly reduce ACC data points for faster loading
     if (metric === 'ACC') {
-        data = data.filter((_, i) => i % 500 === 0); // Take every 500th point instead of 200th
+        data = data.filter((_, i) => i % 20 === 0); // Take every 500th point instead of 200th
     }
         if (metric === 'TEMP') {
           data = data.filter((_, i) => i % 20 === 0);
@@ -452,7 +452,7 @@ async function generateMetricData(metric) {
     const data = [];
     const studentCount = 10;
     const tests = ['Midterm 1', 'Midterm 2', 'Final'];
-    
+
     for (let student = 1; student <= studentCount; student++) {
     const studentId = `S${student}`;
     const gradeData = gradesData[studentId];
@@ -462,6 +462,7 @@ async function generateMetricData(metric) {
         const realData = await loadRealData(student, test, metric);
         
         let avgMetric;
+        
         let score;
         
         if (test === 'Midterm 1') score = gradeData['Midterm 1'];
@@ -510,6 +511,7 @@ async function generateMetricData(metric) {
     }
         
     }
+
     return data;
 }
 
