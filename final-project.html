@@ -2031,14 +2031,24 @@
           const userSlope = (uy2 - uy1) / (ux2 - ux1);
           const userIntercept = uy1 - userSlope * ux1;
 
-          const mse = d3.mean(data, d => {
-            const yUser = userSlope * d[xField] + userIntercept;
-            const yTrue = slope * d[xField] + intercept;
-            return (yUser - yTrue) ** 2;
-          });
+          // Calculate accuracy based on angle difference and position similarity
+          const actualAngle = Math.atan(slope) * 180 / Math.PI;
+          const userAngle = Math.atan(userSlope) * 180 / Math.PI;
+          const angleDiff = Math.abs(actualAngle - userAngle);
 
-          const maxPossibleError = d3.variance(data.map(d => d[yField]));
-          const accuracy = Math.max(0, Math.min(100, 100 * (1 - mse / maxPossibleError)));
+          // Calculate position accuracy by comparing predicted vs actual values at key points
+          const xMid = (d3.max(data, d => d[xField]) + d3.min(data, d => d[xField])) / 2;
+          const yUserMid = userSlope * xMid + userIntercept;
+          const yTrueMid = slope * xMid + intercept;
+          const yRange = d3.max(data, d => d[yField]) - d3.min(data, d => d[yField]);
+          const positionError = Math.abs(yUserMid - yTrueMid) / yRange;
+
+          // Combine angle and position accuracy (angle is more important)
+          const angleAccuracy = Math.max(0, 100 - angleDiff * 2); // 2% penalty per degree
+          const positionAccuracy = Math.max(0, 100 - positionError * 100);
+          const accuracy = Math.max(0, angleAccuracy * 0.7 + positionAccuracy * 0.3);
+
+          console.log(`Accuracy calculation: angle=${actualAngle.toFixed(1)}°, userAngle=${userAngle.toFixed(1)}°, angleDiff=${angleDiff.toFixed(1)}°, accuracy=${accuracy.toFixed(1)}%`);
 
           showFeedback(metric, accuracy);
         }
