@@ -212,6 +212,262 @@
       opacity: 0.8;
     }
 
+    /* Attention grabber animations */
+    .attention-grabber {
+      margin-bottom: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .floating-question {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 1.5rem 2rem;
+      border-radius: 2rem;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      animation: float 4s ease-in-out infinite;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .brain-pulse {
+      font-size: 2rem;
+      color: #fbbf24;
+      animation: pulse-brain 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-brain {
+      0%, 100% { 
+        transform: scale(1);
+        filter: brightness(1);
+      }
+      50% { 
+        transform: scale(1.1);
+        filter: brightness(1.2);
+      }
+    }
+
+    .question-text {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: white;
+    }
+
+    .animated-stats {
+      display: flex;
+      align-items: center;
+      gap: 3rem;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 1.5rem;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .pulse-indicator {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .pulse-ring {
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      width: 60px;
+      height: 60px;
+      border: 3px solid #ef4444;
+      border-radius: 50%;
+      animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+      opacity: 0;
+    }
+
+    .pulse-ring-delay-1 {
+      animation-delay: 0.7s;
+    }
+
+    .pulse-ring-delay-2 {
+      animation-delay: 1.4s;
+    }
+
+    @keyframes pulse-ring {
+      0% {
+        transform: scale(0.8);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(2.5);
+        opacity: 0;
+      }
+    }
+
+    .pulse-bpm {
+      background: #ef4444;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 2rem;
+      font-weight: 700;
+      font-size: 1.1rem;
+      animation: bpm-count 2s ease-in-out infinite;
+      z-index: 10;
+      position: relative;
+    }
+
+    @keyframes bpm-count {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .stress-arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      animation: arrow-glow 3s ease-in-out infinite;
+    }
+
+    .stress-arrow i {
+      font-size: 2rem;
+      color: #f59e0b;
+    }
+
+    .stress-arrow span {
+      font-weight: 700;
+      color: #f59e0b;
+      letter-spacing: 0.1em;
+    }
+
+    @keyframes arrow-glow {
+      0%, 100% { 
+        filter: brightness(1);
+        transform: translateX(0);
+      }
+      50% { 
+        filter: brightness(1.3);
+        transform: translateX(10px);
+      }
+    }
+
+    .grade-display {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .grade-number {
+      font-size: 3rem;
+      font-weight: 900;
+      color: #10b981;
+      line-height: 1;
+      position: relative;
+    }
+
+    .grade-animate {
+      animation: grade-reveal 4s ease-in-out infinite;
+    }
+
+    @keyframes grade-reveal {
+      0% { opacity: 0.3; transform: scale(0.8); }
+      25% { opacity: 1; transform: scale(1.1); }
+      75% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0.3; transform: scale(0.8); }
+    }
+
+    .grade-label {
+      font-weight: 700;
+      color: #10b981;
+      letter-spacing: 0.1em;
+    }
+
+    .hook-statement {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      background: rgba(255, 255, 255, 0.12);
+      padding: 2rem 2.5rem;
+      border-radius: 1.5rem;
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      margin-top: 2rem;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .hook-icon {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: white;
+      flex-shrink: 0;
+      animation: icon-glow 3s ease-in-out infinite;
+    }
+
+    @keyframes icon-glow {
+      0%, 100% { 
+        box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+        transform: scale(1);
+      }
+      50% { 
+        box-shadow: 0 0 30px rgba(251, 191, 36, 0.6);
+        transform: scale(1.05);
+      }
+    }
+
+    .hook-text {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.95);
+      margin: 0;
+      font-weight: 400;
+    }
+
+    /* Enhanced floating animation */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      33% { transform: translateY(-10px) rotate(1deg); }
+      66% { transform: translateY(-5px) rotate(-1deg); }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .animated-stats {
+        flex-direction: column;
+        gap: 2rem;
+      }
+      
+      .hook-statement {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .attention-grabber {
+        gap: 1.5rem;
+      }
+      
+      .floating-question {
+        padding: 1rem 1.5rem;
+      }
+      
+      .question-text {
+        font-size: 1rem;
+      }
+    }
+
     /* Section Styling */
     .section {
       padding: 4rem 0;
@@ -411,12 +667,12 @@
 
     .viz-content {
       display: flex;
-      min-height: 600px;
+      min-height: 700px;
     }
 
     .chart-panel {
-      flex: 2;
-      padding: 2rem;
+      flex: 2.5;
+      padding: 2rem 2rem 2rem 3rem;
       position: relative;
     }
 
@@ -424,10 +680,21 @@
       flex: 1;
       background: #f8fafc;
       border-left: 1px solid var(--border);
-      padding: 2rem;
+      padding: 2rem 2rem 2rem 1.5rem;
       display: flex;
       flex-direction: column;
       gap: 1rem;
+      overflow-y: auto;
+    }
+
+    .time-series-container {
+      width: 100%;
+      height: 220px;
+      border-radius: 0.5rem;
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.3s ease;
     }
 
     .student-card {
@@ -951,6 +1218,79 @@
         display: none;
       }
     }
+
+    /* Brain Model */
+    .interactive-demo {
+      margin-top: 3rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .brain-model {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brain-container {
+      position: relative;
+      width: 120px;
+      height: 80px;
+      display: flex;
+      perspective: 1000px;
+    }
+
+    .brain-hemisphere {
+      width: 60px;
+      height: 80px;
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      position: relative;
+      border-radius: 50px 10px 10px 50px;
+      box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    .brain-right {
+      border-radius: 10px 50px 50px 10px;
+      background: linear-gradient(135deg, #6366f1, #3b82f6);
+    }
+
+    .neural-activity {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: #fbbf24;
+      border-radius: 50%;
+      animation: neural-pulse 2s ease-in-out infinite;
+      box-shadow: 0 0 10px #fbbf24;
+    }
+
+    .brain-left .neural-activity:nth-child(1) { top: 20%; left: 30%; }
+    .brain-left .neural-activity:nth-child(2) { top: 50%; left: 60%; }
+    .brain-left .neural-activity:nth-child(3) { top: 70%; left: 40%; }
+
+    .brain-right .neural-activity:nth-child(1) { top: 30%; right: 30%; }
+    .brain-right .neural-activity:nth-child(2) { top: 60%; right: 50%; }
+    .brain-right .neural-activity:nth-child(3) { top: 80%; right: 35%; }
+
+    @keyframes neural-pulse {
+      0%, 100% { 
+        opacity: 0.3;
+        transform: scale(1);
+      }
+      50% { 
+        opacity: 1;
+        transform: scale(1.5);
+      }
+    }
+
+    .brain-caption {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.8);
+      text-align: center;
+      font-weight: 500;
+    }
   </style>
 </head>
 
@@ -1108,7 +1448,7 @@
       const minMaxData = await generateMinMaxData(studentData.test, metric);
       const interestingMoments = findInterestingMoments(data, metric);
       
-      const width = 600;
+      const width = 500;
       const height = 400;
       const margin = { top: 40, right: 40, bottom: 60, left: 80 };
 
@@ -1742,8 +2082,8 @@
       const container = d3.select(`#${containerId}`);
       container.selectAll('*').remove();
 
-      const width = 600;
-      const height = 500;
+      const width = 700;
+      const height = 550;
       const margin = { top: 20, right: 20, bottom: 60, left: 60 };
 
       const svg = container.append('svg')
@@ -2065,8 +2405,8 @@
       const minMaxData = await generateMinMaxData(test, metric);
       const interestingMoments = findInterestingMoments(data, metric);
       
-      const width = 300;
-      const height = 180;
+      const width = 320;
+      const height = 200;
       const margin = { top: 20, right: 15, bottom: 40, left: 50 };
 
       const xScale = d3.scaleLinear()
@@ -2464,10 +2804,44 @@
     <div class="hero">
       <div class="container">
         <div class="hero-content">
+          <div class="attention-grabber">
+            <div class="floating-question">
+              <i class="fas fa-brain brain-pulse"></i>
+              <span class="question-text">What if we could predict exam performance from a heartbeat?</span>
+            </div>
+            <div class="animated-stats">
+              <div class="pulse-indicator">
+                <div class="pulse-ring"></div>
+                <div class="pulse-ring pulse-ring-delay-1"></div>
+                <div class="pulse-ring pulse-ring-delay-2"></div>
+                <span class="pulse-bpm">85 BPM</span>
+              </div>
+              <div class="stress-arrow">
+                <i class="fas fa-arrow-right"></i>
+                <span>STRESS</span>
+              </div>
+              <div class="grade-display">
+                <div class="grade-number grade-animate">92</div>
+                <span class="grade-label">SCORE</span>
+              </div>
+            </div>
+          </div>
+          
           <h1 class="hero-title">Decoding Academic Stress</h1>
           <p class="hero-subtitle">
-            Understanding how physiological responses correlate with exam performance through comprehensive biometric analysis
+            Every second, your body tells a story about stress, focus, and performance. 
+            We're listening to what it has to say about academic success.
           </p>
+          
+          <div class="hook-statement">
+            <div class="hook-icon">
+              <i class="fas fa-lightbulb"></i>
+            </div>
+            <p class="hook-text">
+              During exams, students' heart rates can increase by 40%, skin conductance spikes 300%, 
+              and body temperature rises 0.8°C. But which patterns predict success?
+            </p>
+          </div>
           
           <div class="hero-stats">
             <div class="stat-card">
@@ -2487,6 +2861,24 @@
               <span class="stat-label">Data Points</span>
             </div>
           </div>
+
+          <div class="interactive-demo">
+          <div class="brain-model">
+            <div class="brain-container">
+              <div class="brain-hemisphere brain-left">
+                <div class="neural-activity" style="animation-delay: 0s;"></div>
+                <div class="neural-activity" style="animation-delay: 0.5s;"></div>
+                <div class="neural-activity" style="animation-delay: 1s;"></div>
+              </div>
+              <div class="brain-hemisphere brain-right">
+                <div class="neural-activity" style="animation-delay: 0.3s;"></div>
+                <div class="neural-activity" style="animation-delay: 0.8s;"></div>
+                <div class="neural-activity" style="animation-delay: 1.3s;"></div>
+              </div>
+            </div>
+            <div class="brain-caption">Neural Activity During Stress</div>
+          </div>
+        </div>
         </div>
       </div>
     </div>
