@@ -2162,6 +2162,12 @@
         if (metric === 'ACC') {
           data = data.filter((_, i) => i % 500 === 0); // Take every 500th point instead of 200th
         }
+        if (metric === 'TEMP') {
+          data = data.filter((_, i) => i % 20 === 0);
+        }
+        if (metric === 'EDA') {
+          data = data.filter((_, i) => i % 20 === 0);
+        }
 
         return data;
       } catch (error) {
@@ -2191,6 +2197,12 @@
         if (metric === 'ACC') {
           data = data.filter((_, i) => i % 500 === 0); // Take every 500th point instead of 200th
         }
+        if (metric === 'TEMP') {
+          data = data.filter((_, i) => i % 20 === 0);
+        }
+        if (metric === 'EDA') {
+          data = data.filter((_, i) => i % 20 === 0);
+        }
         
         return data;
       } catch (error) {
